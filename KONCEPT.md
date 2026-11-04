@@ -38,7 +38,8 @@ včetně budov**. Kovy, uhlí, ropa ani uran nejsou potřeba.
 - **Hmyzí kolonie:** mravenčí dílna I–II (montážky) ✅, pavoučí přadlena ✅; mravenčí dílna III a úl (složité díly) jsou v plánu.
 - **Věže:** zahradní (plodiny) a lesní (stromy). ✅
 - **Výzkum:** genetická laboratoř, sekvenátor DNA (grafika biolabu). ✅
-- **Logistika:** kořenové pásy, tunely, rozdělovače, úponky (inserterty). ✅ Houbové uzly místo sloupů jsou v plánu.
+- **Logistika:** kořenové pásy, tunely, rozdělovače, úponky (inserterty). ✅
+- **Síť podhoubí:** houbové uzly (sloupy), fotosyntetické listy, kvasná komora, škrobová hlíza. ✅
 - **Pěstované budovy** (plán): recept dá „zárodek“, po položení vyroste mladá forma, ze které za
   pár minut skript udělá dospělou budovu (`on_built_entity` → `storage` → `on_nth_tick`).
 - **Houby a mycelium** (plán): houbová farma, nervová tkáň, uzly sítě podhoubí.
@@ -46,9 +47,11 @@ včetně budov**. Kovy, uhlí, ropa ani uran nejsou potřeba.
 ## Energie
 - **Malé budovy jí:** burner s `fuel_categories = {"cozy-food"}`, slot s ikonou jídla. Krmí se
   ručně nebo inserterem. ✅
-- **Síť podhoubí** (plán): elektrická síť přejmenovaná na mycelium. Energii vyrábějí
-  **fotosyntetické listy** (solár) a **kvasná komora** (pálí cukr), uchovává ji **škrobová hlíza**
-  (akumulátor) a rozvádějí **houbové uzly** (sloupy). Velké budovy (sekvenátor, věže, dílna II) přejdou na síť.
+- **Síť podhoubí:** elektrická síť přejmenovaná na mycelium. ✅
+  - Energii vyrábějí **fotosyntetické listy** (solár) a **kvasná komora** (pálí cukr nebo seno, 300 kW).
+  - Uchovává ji **škrobová hlíza** (akumulátor).
+  - Rozvádějí ji **houbové uzly** a velké houbové uzly (sloupy).
+  - Na síti běží velké budovy: sekvenátor, mravenčí dílna II, zahradní a lesní věž.
 
 ## Výzkum
 1. **Vzorek DNA:** mrkev, vejce a lněné vlákno (i ručně). ✅
@@ -68,7 +71,7 @@ Technicky jde o `tile_buildability_rules` s `required_tiles = {layers = {water_t
 | 0 | plodiny, zvířata, kuchyně, zahradní věž | 0.1.0 ✅ |
 | 1 | svět bez kovů, nové suroviny, trávicí komora, živé budovy jí, kořenová logistika | 0.2.0 ✅ |
 | 2 | sekvenování DNA (balíčky 1–2), sekvenátor, mravenčí dílna I–II, pavoučí přadlena, strom technologií | 0.3.0 ✅ |
-| 3 | síť podhoubí: listy, kvasná komora, hlíza, houbové uzly | – |
+| 3 | síť podhoubí: listy, kvasná komora, hlíza, houbové uzly | 0.4.0 ✅ |
 | 4 | pěstované budovy, houbová farma, nervová tkáň, chitin | – |
 | 5 | CRISPR + odrůdy (kvalita), balíček 3 | – |
 | 6 | budovy na vodě, balíček 4 | – |

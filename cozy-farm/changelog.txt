@@ -1,4 +1,13 @@
 ---------------------------------------------------------------------------------------------------
+Version: 0.4.0
+Date: 2026-11-04
+  Features:
+    - Mycelium network (the electric network as a living fungal web): fungal nodes and large fungal nodes
+      (poles), photosynthetic leaves (solar), fermentation chamber (burns sugar or hay, 300 kW),
+      starch tuber (accumulator).
+    - Big buildings run on the network instead of eating: DNA sequencer, ant workshop II, garden and forest tower.
+    - Technologies: mycelium network, starch tuber, large fungal nodes.
+---------------------------------------------------------------------------------------------------
 Version: 0.3.0
 Date: 2026-11-04
   Features:
