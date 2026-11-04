@@ -93,4 +93,30 @@ function common.fed_energy()
   }
 end
 
+--- Copy of a vanilla crafting machine turned into a living Cozy Farm building.
+function common.machine(kind, base_name, name, opts)
+  local base = data.raw[kind][base_name]
+  local e = table.deepcopy(base)
+  e.name = common.P .. name
+  e.icon = nil
+  e.icons = common.badged(base.icon, opts.badge, opts.tint)
+  e.minable = { mining_time = 0.3, result = common.P .. name }
+  if opts.categories then e.crafting_categories = opts.categories end
+  if opts.speed then e.crafting_speed = opts.speed end
+  e.energy_source = common.fed_energy()
+  e.energy_usage = opts.usage or "75kW"
+  e.next_upgrade = nil
+  e.fast_replaceable_group = opts.replace_group
+  e.module_slots = 0
+  e.allowed_effects = nil
+  e.effect_receiver = nil
+  e.surface_conditions = nil
+  e.heating_energy = nil
+  if opts.tint then common.tint_graphics(e.graphics_set, opts.tint) end
+  local item = common.item(name, opts.subgroup or "buildings", opts.order or "z", 20, { place_result = common.P .. name })
+  item.icon = nil
+  item.icons = e.icons
+  return e, item
+end
+
 return common

@@ -28,9 +28,6 @@ end
 local mill, mill_item = building("mill", "cozy-mill", "assembling-machine-1", "flour", { 0.95, 0.88, 0.7 }, "d")
 local kitchen, kitchen_item = building("kitchen", "cozy-kitchen", "assembling-machine-1", "pumpkin-pie", { 1, 0.75, 0.55 }, "e")
 
-local farm_pack = common.item("farm-pack", "food", "z", 200)
-farm_pack.type = "tool"
-farm_pack.durability = 1
 
 data:extend({
   mill, mill_item, kitchen, kitchen_item,
@@ -40,7 +37,6 @@ data:extend({
   common.item("cheese", "food", "b", 50, { type = "capsule", capsule_action = common.food_action(40) }),
   common.item("vegetable-soup", "food", "c", 50, { type = "capsule", capsule_action = common.food_action(60) }),
   common.item("pumpkin-pie", "food", "d", 50, { type = "capsule", capsule_action = common.food_action(100) }),
-  farm_pack,
 
   common.recipe("mill", "crafting", 3, { { "plank", 10 }, { "limestone", 10 }, { "flax-fiber", 5 } }, { { "mill", 1 } }),
   common.recipe("kitchen", "crafting", 3, { { "plank", 10 }, { "biocement", 10 }, { "resin", 5 } }, { { "kitchen", 1 } }),
@@ -50,6 +46,5 @@ data:extend({
   common.recipe("cheese", "cozy-kitchen", 10, { { "milk", 3 } }, { { "cheese", 1 } }),
   common.recipe("vegetable-soup", "cozy-kitchen", 8, { { "carrot", 1 }, { "potato", 1 }, { "tomato", 1 } }, { { "vegetable-soup", 1 } }),
   common.recipe("pumpkin-pie", "cozy-kitchen", 12, { { "pumpkin", 1 }, { "flour", 1 }, { "egg", 1 }, { "milk", 1 } }, { { "pumpkin-pie", 1 } }),
-  common.recipe("farm-pack", "cozy-kitchen", 10, { { "bread", 1 }, { "vegetable-soup", 1 }, { "wool", 1 } }, { { "farm-pack", 3 } }),
 })
 

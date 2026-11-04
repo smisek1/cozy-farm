@@ -1,4 +1,14 @@
 ---------------------------------------------------------------------------------------------------
+Version: 0.3.0
+Date: 2026-11-04
+  Features:
+    - Research is DNA sequencing: DNA sample (science pack 1, hand-craftable) and genome sequence
+      (science pack 2). The farm science pack is gone.
+    - Genetic lab reads DNA samples; the DNA sequencer (Space Age biolab) reads both and is 2x faster.
+    - Ant workshop I and II: living assembling machines (also do all hand-craft recipes).
+    - Spider spinner: silk from eggs and sugar.
+    - Own technology tree: root logistics, ant workshops, spider silk, garden/forest tower, genome sequencing.
+---------------------------------------------------------------------------------------------------
 Version: 0.2.0
 Date: 2026-11-04
   Features:

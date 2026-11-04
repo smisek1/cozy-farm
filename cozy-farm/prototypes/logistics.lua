@@ -25,8 +25,8 @@ local function reskin(kind, name, tint, recipe_ings, count, enabled)
 end
 
 reskin("transport-belt", "transport-belt", ROOT, { { "plank", 1 }, { "flax-fiber", 1 } }, 2)
-reskin("underground-belt", "underground-belt", ROOT, { { "plank", 10 }, { "transport-belt", 5 } }, 2)
-reskin("splitter", "splitter", ROOT, { { "plank", 5 }, { "flax-fiber", 5 }, { "transport-belt", 4 } }, 1)
+reskin("underground-belt", "underground-belt", ROOT, { { "plank", 10 }, { "transport-belt", 5 } }, 2, false)
+reskin("splitter", "splitter", ROOT, { { "plank", 5 }, { "flax-fiber", 5 }, { "transport-belt", 4 } }, 1, false)
 
 -- Burner inserter = tendril; it eats like other living buildings.
 local tendril = data.raw.inserter["burner-inserter"]
@@ -41,7 +41,7 @@ data.raw.recipe["wooden-chest"].enabled = true
 -- Lab = genetic lab (becomes the DNA sequencer later). Eats for now.
 local lab = data.raw.lab["lab"]
 lab.energy_source = common.fed_energy()
-lab.inputs = { P .. "farm-pack" }
+lab.inputs = { P .. "dna-sample" }
 local lab_recipe = data.raw.recipe["lab"]
 lab_recipe.ingredients = ing({ { "plank", 10 }, { "flax-fiber", 10 }, { "biocement", 5 } })
 lab_recipe.enabled = true

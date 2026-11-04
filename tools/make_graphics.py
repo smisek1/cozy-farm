@@ -422,6 +422,84 @@ def draw_digester_badge(c):
         c.circle(x, y, 3, "#a64b5c")
 
 
+def helix(c, x0, y0, x1, y1, amp, turns, w, col_a, col_b, rungs=True):
+    n = 60
+    pts_a, pts_b = [], []
+    for i in range(n + 1):
+        t = i / n
+        y = y0 + (y1 - y0) * t
+        ph = t * turns * 2 * math.pi
+        pts_a.append((x0 + (x1 - x0) * t + math.sin(ph) * amp, y))
+        pts_b.append((x0 + (x1 - x0) * t - math.sin(ph) * amp, y))
+    if rungs:
+        for i in range(0, n + 1, 5):
+            c.line(pts_a[i][0], pts_a[i][1], pts_b[i][0], pts_b[i][1], w * 0.6, "#d8d8e8")
+    for i in range(n):
+        c.line(pts_a[i][0], pts_a[i][1], pts_a[i + 1][0], pts_a[i + 1][1], w, col_a)
+        c.line(pts_b[i][0], pts_b[i][1], pts_b[i + 1][0], pts_b[i + 1][1], w, col_b)
+
+
+def draw_dna_sample(c):
+    # test tube with green liquid and a helix
+    c.poly([(22, 4), (42, 4), (42, 50), (32, 60), (22, 50)], OUT)
+    c.poly([(24, 6), (40, 6), (40, 49), (32, 57.5), (24, 49)], "#eef6f0")
+    c.poly([(24, 30), (40, 30), (40, 49), (32, 57.5), (24, 49)], "#7cc35a")
+    c.rect(20, 2, 44, 8, "#8d6e63")
+    helix(c, 32, 12, 32, 52, 5, 1.5, 2, "#2e7d32", "#c2185b")
+
+
+def draw_genome_sequence(c):
+    c.circle(32, 32, 27, OUT)
+    c.circle(32, 32, 25.5, "#2c3e50")
+    c.circle(32, 32, 20, "#34495e")
+    for k in range(12):
+        a = k * math.pi / 6
+        c.line(32 + math.cos(a) * 21, 32 + math.sin(a) * 21, 32 + math.cos(a) * 25, 32 + math.sin(a) * 25, 2, "#7cc35a")
+    helix(c, 18, 32, 46, 32, 0.01, 0, 1, "#000000", "#000000", rungs=False)
+    n = 40
+    for i in range(n):
+        t0, t1 = i / n, (i + 1) / n
+        for sgn, col in ((1, "#7cc35a"), (-1, "#f06292")):
+            x0 = 16 + 32 * t0; x1 = 16 + 32 * t1
+            y0 = 32 + sgn * math.sin(t0 * 3 * math.pi) * 8
+            y1 = 32 + sgn * math.sin(t1 * 3 * math.pi) * 8
+            c.line(x0, y0, x1, y1, 2.2, col)
+
+
+def draw_silk(c):
+    c.rect(18, 8, 46, 14, OUT); c.rect(18, 50, 46, 56, OUT)
+    c.rect(20, 9.5, 44, 12.5, "#a1887f"); c.rect(20, 51.5, 44, 54.5, "#a1887f")
+    c.rect(22, 14, 42, 50, OUT)
+    c.rect(23.5, 14, 40.5, 50, "#fbfbff")
+    for k in range(9):
+        y = 16 + k * 4
+        c.line(24, y, 40, y + 2, 1, "#d6d6ea")
+    c.line(40, 40, 56, 58, 1.5, "#fbfbff")
+
+
+def draw_ant(c, x=32, y=34, s=1.0):
+    for side in (-1, 1):
+        for k, dy in enumerate((-6, 0, 6)):
+            c.line(x, y + dy * s, x + side * 18 * s, y + dy * s + (k - 1) * 8 * s, 2 * s, OUT)
+    c.ellipse(x, y + 16 * s, 8 * s, 11 * s, OUT); c.ellipse(x, y + 16 * s, 6.5 * s, 9.5 * s, "#a0522d")
+    c.ellipse(x, y, 5 * s, 7 * s, OUT); c.ellipse(x, y, 3.8 * s, 5.8 * s, "#b5652d")
+    c.circle(x, y - 12 * s, 7 * s, OUT); c.circle(x, y - 12 * s, 5.8 * s, "#a0522d")
+    c.line(x - 2 * s, y - 17 * s, x - 9 * s, y - 26 * s, 1.5 * s, OUT)
+    c.line(x + 2 * s, y - 17 * s, x + 9 * s, y - 26 * s, 1.5 * s, OUT)
+
+
+def draw_spider(c, x=32, y=34, s=1.0):
+    for side in (-1, 1):
+        for k in range(4):
+            a = (k - 1.5) * 0.45
+            mx, my = x + side * 14 * s, y + (k - 1.5) * 8 * s - 6 * s
+            c.line(x, y, mx, my, 2.2 * s, OUT)
+            c.line(mx, my, mx + side * 8 * s, my + 12 * s, 2.2 * s, OUT)
+    c.circle(x, y + 8 * s, 12 * s, OUT); c.circle(x, y + 8 * s, 10.5 * s, "#5d4037")
+    c.circle(x, y - 6 * s, 7 * s, OUT); c.circle(x, y - 6 * s, 5.8 * s, "#6d4c41")
+    c.ellipse(x, y + 8 * s, 3 * s, 5 * s, "#ffcc80")
+
+
 # ---------------------------------------------------------------- entity sprites (crop on soil)
 
 
@@ -502,6 +580,8 @@ def main():
         "chicken": draw_chicken, "cow": draw_cow, "sheep": draw_sheep, "farm-pack": draw_farm_pack,
         "tower-badge": draw_tower_badge,
         "flax-fiber": draw_fiber, "plank": draw_plank, "resin": draw_resin, "limestone": draw_limestone,
+        "dna-sample": draw_dna_sample, "genome-sequence": draw_genome_sequence, "silk": draw_silk,
+        "ant": draw_ant, "spider": draw_spider,
         "biocement": draw_biocement, "sugar": draw_sugar, "digester-badge": draw_digester_badge,
     }
     for name, (fn, tint) in crops.items():
