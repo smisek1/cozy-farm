@@ -7,7 +7,7 @@ Postupně to všechno zautomatizuješ.
 *A relaxing solarpunk overhaul for Factorio 2.1 + Space Age where everything is alive: no metals,
 coal or oil – grow crops, raise animals, feed living buildings and automate it all.*
 
-## Co je hotové (0.4.0)
+## Co je hotové (0.5.0)
 - **Ornice a 6 plodin:** mrkev, brambory, pšenice, rajčata, dýně a len. Rostou jen v ornici.
   Sklízíš je ručně, nebo přes **zahradní věž**.
 - **Zvířata:** kurník, stáj a ovčín (vejce, mléko, vlna), krmení senem, odchov.
@@ -19,7 +19,9 @@ coal or oil – grow crops, raise animals, feed living buildings and automate it
 - **Logistika:** kořenové pásy, úponky (inserterty) a lesní věž.
 - **Výzkum = sekvenování DNA:** vzorek DNA a sekvence genomu, genetická laboratoř a sekvenátor DNA,
   vlastní strom technologií.
-- **Hmyzí továrny:** mravenčí dílna I a II (montážky) a pavoučí přadlena (hedvábí).
+- **Hmyzí továrny:** mravenčí dílna I–III (montážky) a pavoučí přadlena (hedvábí).
+- **Pěstované budovy:** větší budovy se nestaví, zasadíš zárodek a budova vyroste.
+- **Houby:** houbová farma (mycelium), nervová tkáň místo obvodů, chitin místo oceli.
 - **Síť podhoubí:** houbové uzly, fotosyntetické listy, kvasná komora (cukr → energie) a škrobová
   hlíza. Napájí velké budovy.
 

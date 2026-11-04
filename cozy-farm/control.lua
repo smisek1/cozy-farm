@@ -1,4 +1,5 @@
--- Cozy Farm: start kit for new games (seeds, soil and a few animals).
+-- Cozy Farm: start kit for new games (seeds, soil and a few animals) and growing buildings.
+local growth = require("scripts.growth")
 
 local START_KIT = {
   ["cozy-garden-soil"] = 50,
@@ -37,6 +38,7 @@ local function give(player)
 end
 
 script.on_init(function()
+  growth.init()
   storage.freeplay = use_freeplay()
   storage.given = {}
   -- Mod added to an existing save: hand the kit to players that already exist.
@@ -58,3 +60,12 @@ script.on_event(defines.events.on_player_created, function(event)
     storage.given[player.index] = true
   end
 end)
+
+script.on_configuration_changed(growth.init)
+
+for _, ev in ipairs({ defines.events.on_built_entity, defines.events.on_robot_built_entity }) do
+  script.on_event(ev, growth.on_built, growth.filters)
+end
+script.on_event(defines.events.script_raised_built, growth.on_built, growth.filters)
+script.on_event(defines.events.script_raised_revive, growth.on_built, growth.filters)
+script.on_nth_tick(60, growth.tick)

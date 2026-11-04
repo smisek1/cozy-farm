@@ -27,22 +27,24 @@ včetně budov**. Kovy, uhlí, ropa ani uran nejsou potřeba.
 | kámen, cihly | vápenec → biocement | skály → trávicí komora | ✅ |
 | plast | pryskyřice | dřevo → trávicí komora | ✅ |
 | palivo | cukr, seno | trávicí komora, pšenice | ✅ |
-| ocel | chitin | hmyzí kolonie (svlečené krunýře) | plán |
-| obvody | nervová tkáň | houbová farma (mycelium) | plán |
+| ocel | chitin | mravenci chovají brouky (mravenčí dílna) | ✅ |
+| obvody | nervová tkáň | mycelium (houbová farma) + hedvábí | ✅ |
 | ropa | olej ze semen | trávicí komora | plán |
 
 ## Budovy
 - **Zvířata:** kurník, stáj, ovčín (vejce, mléko, vlna, odchov). ✅
 - **Zpracování:** mlýn, kuchyně. ✅
 - **Trávicí komora:** živý žaludek (grafika biokomory z Gleby). ✅
-- **Hmyzí kolonie:** mravenčí dílna I–II (montážky) ✅, pavoučí přadlena ✅; mravenčí dílna III a úl (složité díly) jsou v plánu.
+- **Hmyzí kolonie:** mravenčí dílna I–III (montážky) ✅, pavoučí přadlena ✅; úl (složité díly) je v plánu.
 - **Věže:** zahradní (plodiny) a lesní (stromy). ✅
 - **Výzkum:** genetická laboratoř, sekvenátor DNA (grafika biolabu). ✅
 - **Logistika:** kořenové pásy, tunely, rozdělovače, úponky (inserterty). ✅
 - **Síť podhoubí:** houbové uzly (sloupy), fotosyntetické listy, kvasná komora, škrobová hlíza. ✅
-- **Pěstované budovy** (plán): recept dá „zárodek“, po položení vyroste mladá forma, ze které za
-  pár minut skript udělá dospělou budovu (`on_built_entity` → `storage` → `on_nth_tick`).
-- **Houby a mycelium** (plán): houbová farma, nervová tkáň, uzly sítě podhoubí.
+- **Pěstované budovy:** ✅ Recept dá „zárodek“, a když ho zasadíš, za 1–3 minuty vyroste
+  v budovu (nad zárodkem jsou procenta). Vytěžená budova vrátí zárodek. Pěstují se trávicí komora,
+  mravenčí dílny, přadlena, houbová farma, kvasná komora a sekvenátor. Kurník, stáj, ovčín, mlýn a
+  kuchyně se pořád staví normálně. Seznam je v `scripts/grown_list.lua`.
+- **Houby a mycelium:** houbová farma (mycelium ze dřeva a sena) ✅, nervová tkáň ✅.
 
 ## Energie
 - **Malé budovy jí:** burner s `fuel_categories = {"cozy-food"}`, slot s ikonou jídla. Krmí se
@@ -72,7 +74,7 @@ Technicky jde o `tile_buildability_rules` s `required_tiles = {layers = {water_t
 | 1 | svět bez kovů, nové suroviny, trávicí komora, živé budovy jí, kořenová logistika | 0.2.0 ✅ |
 | 2 | sekvenování DNA (balíčky 1–2), sekvenátor, mravenčí dílna I–II, pavoučí přadlena, strom technologií | 0.3.0 ✅ |
 | 3 | síť podhoubí: listy, kvasná komora, hlíza, houbové uzly | 0.4.0 ✅ |
-| 4 | pěstované budovy, houbová farma, nervová tkáň, chitin | – |
+| 4 | pěstované budovy, houbová farma, nervová tkáň, chitin, mravenčí dílna III | 0.5.0 ✅ |
 | 5 | CRISPR + odrůdy (kvalita), balíček 3 | – |
 | 6 | budovy na vodě, balíček 4 | – |
 
@@ -80,7 +82,9 @@ Technicky jde o `tile_buildability_rules` s `required_tiles = {layers = {water_t
 - Animace růstu plodin (`growth_variations` potřebuje speciální textury). Teď rostlina vypadá
   od zasazení jako dorostlá.
 - Lepší grafika budov, zatím jsou to přebarvené vanilla stroje.
-- Mravenčí dílna III, úl.
+- Úl (složité díly).
+- Pěstování přes blueprinty: roboti zatím staví budovu rovnou dospělou (jako materiál použijí zárodek).
+- Zárodek by mohl potřebovat zalévání nebo hnojivo, aby rostl rychleji.
 
 ## Technické poznámky
 - Testy běží headless: `factorio --create` (načtení prototypů) a `--benchmark` s testovacím modem.

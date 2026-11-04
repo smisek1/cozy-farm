@@ -500,6 +500,73 @@ def draw_spider(c, x=32, y=34, s=1.0):
     c.ellipse(x, y + 8 * s, 3 * s, 5 * s, "#ffcc80")
 
 
+def draw_mushroom(c, x=32, y=36, s=1.0):
+    c.rect(x - 7 * s, y - 4 * s, x + 7 * s, y + 20 * s, OUT)
+    c.rect(x - 5.5 * s, y - 4 * s, x + 5.5 * s, y + 18.5 * s, "#f3e9d8")
+    c.ellipse(x, y - 6 * s, 24 * s + 1.5, 14 * s + 1.5, OUT)
+    c.ellipse(x, y - 6 * s, 24 * s, 14 * s, "#c0392b")
+    c.rect(x - 26 * s, y - 6 * s, x + 26 * s, y + 10 * s, (0, 0, 0, 0))
+    for dx, dy, r in [(-12, -10, 3.5), (2, -14, 3), (12, -6, 4), (-3, -4, 2.5)]:
+        c.circle(x + dx * s, y + dy * s, r * s, "#fff6e8")
+
+
+def draw_mycelium(c):
+    c.ellipse(32, 46, 26, 12, OUT)
+    c.ellipse(32, 46, 24.5, 10.5, "#6d4c41")
+    import random
+    rnd = random.Random(7)
+    for _ in range(26):
+        x0, y0 = 32 + rnd.uniform(-20, 20), 46 + rnd.uniform(-6, 6)
+        a = rnd.uniform(-math.pi, 0)
+        l = rnd.uniform(8, 22)
+        c.line(x0, y0, x0 + math.cos(a) * l, y0 + math.sin(a) * l * 1.3, 1.3, "#f5f0e6")
+    for x, y in [(18, 24), (40, 18), (50, 30), (28, 14)]:
+        c.circle(x, y, 2.5, "#ffffff")
+
+
+def draw_nerve_tissue(c):
+    c.circle(32, 32, 10 + 1.5, OUT)
+    c.circle(32, 32, 10, "#f48fb1")
+    c.circle(32, 32, 4, "#ad1457")
+    for k in range(6):
+        a = k * math.pi / 3 + 0.3
+        ex, ey = 32 + math.cos(a) * 26, 32 + math.sin(a) * 26
+        c.line(32 + math.cos(a) * 9, 32 + math.sin(a) * 9, ex, ey, 3, OUT)
+        c.line(32 + math.cos(a) * 9, 32 + math.sin(a) * 9, ex, ey, 1.8, "#f8bbd0")
+        for side in (-0.5, 0.5):
+            c.line(ex, ey, ex + math.cos(a + side) * 6, ey + math.sin(a + side) * 6, 1.4, "#f8bbd0")
+
+
+def draw_chitin(c):
+    c.poly([(32, 6), (54, 18), (50, 46), (32, 58), (14, 46), (10, 18)], OUT)
+    c.poly([(32, 9), (51, 19.5), (47.5, 44.5), (32, 55), (16.5, 44.5), (13, 19.5)], "#2e7d6b")
+    c.poly([(32, 9), (51, 19.5), (32, 30), (13, 19.5)], "#3fa58c")
+    c.line(32, 30, 32, 55, 1.5, "#1b4d42")
+    c.ellipse(24, 18, 6, 2.5, "#9be7d3", -0.4)
+
+
+def draw_seedling(c):
+    c.ellipse(32, 50, 22, 8, OUT)
+    c.ellipse(32, 50, 20.5, 6.5, "#6b4423")
+    c.line(32, 50, 32, 22, 4, "#3d8b37")
+    c.ellipse(21, 24, 12, 6, OUT, -0.5); c.ellipse(21, 24, 10.5, 4.8, "#7bc96f", -0.5)
+    c.ellipse(43, 20, 12, 6, OUT, 0.5); c.ellipse(43, 20, 10.5, 4.8, "#7bc96f", 0.5)
+
+
+def big_sprout(path):
+    c = Canvas(128, 128)
+    c.ellipse(64, 70, 58, 50, (0.24, 0.15, 0.07, 0.9))
+    c.ellipse(64, 66, 50, 42, (0.36, 0.23, 0.11, 1))
+    import random
+    rnd = random.Random(3)
+    for _ in range(9):
+        x, y = 64 + rnd.uniform(-34, 34), 66 + rnd.uniform(-26, 26)
+        c.line(x, y, x, y - 14, 2.5, "#3d8b37")
+        c.ellipse(x - 5, y - 15, 6, 3, "#7bc96f", -0.5)
+        c.ellipse(x + 5, y - 17, 6, 3, "#7bc96f", 0.5)
+    c.save(path)
+
+
 # ---------------------------------------------------------------- entity sprites (crop on soil)
 
 
@@ -582,6 +649,8 @@ def main():
         "flax-fiber": draw_fiber, "plank": draw_plank, "resin": draw_resin, "limestone": draw_limestone,
         "dna-sample": draw_dna_sample, "genome-sequence": draw_genome_sequence, "silk": draw_silk,
         "ant": draw_ant, "spider": draw_spider,
+        "mushroom": draw_mushroom, "mycelium": draw_mycelium, "nerve-tissue": draw_nerve_tissue,
+        "chitin": draw_chitin, "seedling": draw_seedling,
         "biocement": draw_biocement, "sugar": draw_sugar, "digester-badge": draw_digester_badge,
     }
     for name, (fn, tint) in crops.items():
@@ -591,6 +660,7 @@ def main():
     for name, fn in simple.items():
         c = Canvas(64, 64); fn(c); c.save(os.path.join(icons, name + ".png"))
     mound(os.path.join(ent, "growth-mound.png"))
+    big_sprout(os.path.join(ent, "building-sprout.png"))
     print("graphics written to", mod)
 
 
