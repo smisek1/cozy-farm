@@ -1,4 +1,12 @@
 ---------------------------------------------------------------------------------------------------
+Version: 0.6.0
+Date: 2026-11-04
+  Features:
+    - CRISPR-Cas9 kit (science pack 3) from bacteria culture, genome sequence and nerve tissue.
+    - Biorobots: hive (roboport), worker bees (logistic robots), builder bumblebees (construction robots)
+      and honeycombs (logistic chests), made from chitin, nerve tissue and resin.
+    - Technologies: CRISPR-Cas9, bee hive, honeycomb logistics.
+---------------------------------------------------------------------------------------------------
 Version: 0.5.0
 Date: 2026-11-04
   Features:

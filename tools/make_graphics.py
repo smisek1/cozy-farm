@@ -567,6 +567,34 @@ def big_sprout(path):
     c.save(path)
 
 
+def draw_bacteria_culture(c):
+    c.ellipse(32, 40, 28, 14, OUT)
+    c.ellipse(32, 40, 26.5, 12.5, "#e3f2fd")
+    c.ellipse(32, 38, 23, 10, "#f0e6c8")
+    for x, y, r, col in [(20, 38, 4, "#8bc34a"), (34, 35, 5, "#cddc39"), (44, 40, 3.5, "#7cb342"), (28, 43, 3, "#9ccc65"), (40, 44, 2.5, "#aed581")]:
+        c.circle(x, y, r, col)
+    c.ellipse(32, 28, 27, 9, (0.85, 0.92, 1, 0.5))
+
+
+def draw_crispr_kit(c):
+    helix(c, 14, 50, 50, 14, 6, 1.5, 2.2, "#7cc35a", "#f06292")
+    # scissors
+    c.line(30, 30, 52, 52, 3.5, OUT); c.line(30, 30, 52, 52, 2, "#cfd8dc")
+    c.line(52, 30, 30, 52, 3.5, OUT); c.line(52, 30, 30, 52, 2, "#cfd8dc")
+    c.circle(54, 54, 6, OUT); c.circle(54, 54, 4, "#e53935"); c.circle(54, 54, 2, "#e3f2fd")
+    c.circle(28, 54, 6, OUT); c.circle(28, 54, 4, "#e53935"); c.circle(28, 54, 2, "#e3f2fd")
+
+
+def draw_bee(c, x=32, y=34, s=1.0):
+    c.ellipse(x - 8 * s, y - 12 * s, 10 * s, 6 * s, (0.85, 0.95, 1, 0.85), -0.5)
+    c.ellipse(x + 8 * s, y - 12 * s, 10 * s, 6 * s, (0.85, 0.95, 1, 0.85), 0.5)
+    c.ellipse(x, y + 4 * s, 13 * s + 1.5, 17 * s + 1.5, OUT)
+    c.ellipse(x, y + 4 * s, 13 * s, 17 * s, "#fbc02d")
+    for dy in (-2, 6, 14):
+        c.rect(x - 13 * s, y + dy * s, x + 13 * s, y + (dy + 3.5) * s, OUT)
+    c.circle(x, y - 14 * s, 7 * s + 1.5, OUT); c.circle(x, y - 14 * s, 7 * s, "#3e2723")
+
+
 # ---------------------------------------------------------------- entity sprites (crop on soil)
 
 
@@ -651,6 +679,7 @@ def main():
         "ant": draw_ant, "spider": draw_spider,
         "mushroom": draw_mushroom, "mycelium": draw_mycelium, "nerve-tissue": draw_nerve_tissue,
         "chitin": draw_chitin, "seedling": draw_seedling,
+        "bacteria-culture": draw_bacteria_culture, "crispr-kit": draw_crispr_kit, "bee": draw_bee,
         "biocement": draw_biocement, "sugar": draw_sugar, "digester-badge": draw_digester_badge,
     }
     for name, (fn, tint) in crops.items():

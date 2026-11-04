@@ -52,7 +52,7 @@ function common.item(name, subgroup, order, stack, extra)
 end
 
 -- Ingredient names without the prefix that refer to vanilla items.
-common.VANILLA = { ["wood"] = true, ["tree-seed"] = true, ["transport-belt"] = true }
+common.VANILLA = { ["wood"] = true, ["tree-seed"] = true, ["transport-belt"] = true, ["wooden-chest"] = true }
 
 function common.ing(name, amount)
   local full = common.VANILLA[name] and name or (common.P .. name)

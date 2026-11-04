@@ -17,7 +17,7 @@ včetně budov**. Kovy, uhlí, ropa ani uran nejsou potřeba.
 | Voda | jen pozdě: budovy, které **stojí přímo na vodě** |
 | Továrny | hmyzí kolonie, trávicí komory, pěstované budovy, houby a mycelium |
 | Space Age (planety, rakety) | zatím neřešit |
-| Kvalita (Space Age) | = **genetická odrůda** (lepší semínko → lepší plodina, zvíře i budova) |
+| Kvalita (Space Age) | **nepoužívá se** (technologie kvality jsou skryté) |
 
 ## Suroviny (místo kovů)
 | Vanilla | Cozy Farm | Odkud | Stav |
@@ -40,6 +40,8 @@ včetně budov**. Kovy, uhlí, ropa ani uran nejsou potřeba.
 - **Výzkum:** genetická laboratoř, sekvenátor DNA (grafika biolabu). ✅
 - **Logistika:** kořenové pásy, tunely, rozdělovače, úponky (inserterty). ✅
 - **Síť podhoubí:** houbové uzly (sloupy), fotosyntetické listy, kvasná komora, škrobová hlíza. ✅
+- **Bioroboti:** úl (roboport), včely dělnice (logistické), čmeláci stavitelé (stavební), plástve
+  (logistické truhly). ✅
 - **Pěstované budovy:** ✅ Recept dá „zárodek“, a když ho zasadíš, za 1–3 minuty vyroste
   v budovu (nad zárodkem jsou procenta). Vytěžená budova vrátí zárodek. Pěstují se trávicí komora,
   mravenčí dílny, přadlena, houbová farma, kvasná komora a sekvenátor. Kurník, stáj, ovčín, mlýn a
@@ -58,7 +60,7 @@ včetně budov**. Kovy, uhlí, ropa ani uran nejsou potřeba.
 ## Výzkum
 1. **Vzorek DNA:** mrkev, vejce a lněné vlákno (i ručně). ✅
 2. **Sekvence genomu:** vzorek DNA, hedvábí a cukr (mravenčí dílna). ✅
-3. **CRISPR-Cas9 sada:** enzym z bakteriální kultury (plán).
+3. **CRISPR-Cas9 sada:** bakteriální kultura, sekvence genomu a nervová tkáň. Odemyká bioroboty. ✅
 4. **Syntetický genom:** pozdní hra, budovy na vodě (plán).
 
 Výzkum odemyká nové druhy, budovy a vlastnosti (rychlejší růst, větší výnos).
@@ -75,7 +77,7 @@ Technicky jde o `tile_buildability_rules` s `required_tiles = {layers = {water_t
 | 2 | sekvenování DNA (balíčky 1–2), sekvenátor, mravenčí dílna I–II, pavoučí přadlena, strom technologií | 0.3.0 ✅ |
 | 3 | síť podhoubí: listy, kvasná komora, hlíza, houbové uzly | 0.4.0 ✅ |
 | 4 | pěstované budovy, houbová farma, nervová tkáň, chitin, mravenčí dílna III | 0.5.0 ✅ |
-| 5 | CRISPR + odrůdy (kvalita), balíček 3 | – |
+| 5 | CRISPR-Cas9 (balíček 3), bioroboti: úl, včely dělnice, čmeláci stavitelé, plástve | 0.6.0 ✅ |
 | 6 | budovy na vodě, balíček 4 | – |
 
 ## Nápady na později
