@@ -25,6 +25,8 @@ coal or oil – grow crops, raise animals, feed living buildings and automate it
 CRISPR-Cas9 a další vědecké balíčky, úl, síť podhoubí jako energie,
 pěstované budovy, genetické odrůdy (kvalita) a budovy na vodě.
 
+Celý záměr, rozhodnutí a plán fází jsou v [KONCEPT.md](KONCEPT.md).
+
 ## Struktura
 - `cozy-farm/`: samotný mod
 - `tools/make_graphics.py`: generátor ikon a spritů (čistý Python, bez PIL):
