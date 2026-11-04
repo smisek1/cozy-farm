@@ -1,0 +1,9 @@
+{
+  "name": "cozy-farm",
+  "version": "0.2.0",
+  "title": "Cozy Farm",
+  "author": "smiichaa",
+  "description": "Odpočinkové farmaření: záhony, mrkev, brambory, pšenice, rajčata a dýně, kurník, stáj a ovčín, mlýn a kuchyně. Začneš s motykou v ruce, skončíš u zahradních věží a pásů – všechno jde zautomatizovat.",
+  "factorio_version": "2.1",
+  "dependencies": ["base >= 2.1.0", "space-age"]
+}

@@ -1,0 +1,20 @@
+---------------------------------------------------------------------------------------------------
+Version: 0.2.0
+Date: 2026-11-04
+  Features:
+    - World without metals: no ores, coal, oil or uranium on Nauvis; rocks give limestone.
+    - New materials: plank, flax (new crop) and flax fiber, resin, limestone, biocement, sugar.
+    - Digester (living stomach): resin, biocement and sugar.
+    - Living buildings eat: mill, kitchen, digester, lab, towers and tendrils burn sugar or hay.
+    - Root belts, tunnels and splitters, tendrils (burner inserters), genetic lab and forest tower
+      made from bio materials. Vanilla recipes and technologies are hidden.
+    - Start kit replaces the crash site and iron plates.
+---------------------------------------------------------------------------------------------------
+Version: 0.1.0
+Date: 2026-11-04
+  Features:
+    - Garden soil, five crops (carrot, potato, wheat, tomato, pumpkin) with seeds.
+    - Chicken coop, barn and sheep pen; hay as feed; eggs, milk and wool; breeding.
+    - Mill and kitchen: flour, bread, cheese, vegetable soup, pumpkin pie (all edible).
+    - Farm science pack and the Garden tower technology (automatic planting and harvesting).
+    - Start kit with soil, seeds and animals.
