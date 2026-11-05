@@ -29,7 +29,8 @@ včetně budov**. Kovy, uhlí, ropa ani uran nejsou potřeba.
 | palivo | cukr, seno | trávicí komora, pšenice | ✅ |
 | ocel | chitin | mravenci chovají brouky (mravenčí dílna) | ✅ |
 | obvody | nervová tkáň | mycelium (houbová farma) + hedvábí | ✅ |
-| ropa | olej ze semen | trávicí komora | plán |
+| ropa | rostlinný olej | lněná semínka nebo řasy → trávicí komora | ✅ |
+| vápenec (obnovitelný) | vápenec z rákosu | rákosový filtr na vodě | ✅ |
 
 ## Budovy
 - **Zvířata:** kurník, stáj, ovčín (vejce, mléko, vlna, odchov). ✅
@@ -47,27 +48,38 @@ včetně budov**. Kovy, uhlí, ropa ani uran nejsou potřeba.
   mravenčí dílny, přadlena, houbová farma, kvasná komora a sekvenátor. Kurník, stáj, ovčín, mlýn a
   kuchyně se pořád staví normálně. Seznam je v `scripts/grown_list.lua`.
 - **Houby a mycelium:** houbová farma (mycelium ze dřeva a sena) ✅, nervová tkáň ✅.
+- **Budovy na vodě:** řasová farma (řasy ze slunce), rákosový filtr (vápenec a cukr z vody), lotosový
+  reaktor. Stojí jen na vodě, i jejich zárodky se sází na vodu. ✅
 
 ## Energie
 - **Malé budovy jí:** burner s `fuel_categories = {"cozy-food"}`, slot s ikonou jídla. Krmí se
   ručně nebo inserterem. ✅
 - **Síť podhoubí:** elektrická síť přejmenovaná na mycelium. ✅
-  - Energii vyrábějí **fotosyntetické listy** (solár) a **kvasná komora** (pálí cukr nebo seno, 300 kW).
+  - Energii vyrábějí **fotosyntetické listy** (solár), **kvasná komora** (pálí cukr nebo seno, 300 kW)
+    a **lotosový reaktor** na vodě (pálí jídlo, nejlépe rostlinný olej, 1,5 MW).
   - Uchovává ji **škrobová hlíza** (akumulátor).
   - Rozvádějí ji **houbové uzly** a velké houbové uzly (sloupy).
-  - Na síti běží velké budovy: sekvenátor, mravenčí dílna II, zahradní a lesní věž.
+  - Na síti běží velké budovy: sekvenátor, mravenčí dílna II a III, zahradní a lesní věž, řasová farma
+    a rákosový filtr.
 
 ## Výzkum
 1. **Vzorek DNA:** mrkev, vejce a lněné vlákno (i ručně). ✅
 2. **Sekvence genomu:** vzorek DNA, hedvábí a cukr (mravenčí dílna). ✅
 3. **CRISPR-Cas9 sada:** bakteriální kultura, sekvence genomu a nervová tkáň. Odemyká bioroboty. ✅
-4. **Syntetický genom:** pozdní hra, budovy na vodě (plán).
+4. **Syntetický genom:** CRISPR sada, řasy, rostlinný olej a nervová tkáň (mravenčí dílna). Odemyká
+   lotosový reaktor a syntetické enzymy (+20 % produktivity trávicí komory). ✅
 
 Výzkum odemyká nové druhy, budovy a vlastnosti (rychlejší růst, větší výnos).
 
-## Voda (pozdní hra, plán)
-Lotosový reaktor (energie), rákosový filtr a řasová farma (olej, cukr) stojí přímo na vodě.
-Technicky jde o `tile_buildability_rules` s `required_tiles = {layers = {water_tile = true}}`.
+## Voda (pozdní hra) ✅
+Lotosový reaktor (energie), rákosový filtr (vápenec, cukr) a řasová farma (řasy → olej a cukr) stojí přímo na vodě.
+- Technicky: kolizní maska jako offshore pumpa (`object`, `train`, `is_object`, `is_lower_object`, bez vrstev
+  vody) a `tile_buildability_rules` s `required_tiles = {layers = {water_tile = true}}` přes celou budovu.
+- Zárodek přebírá masku i pravidla od vzrostlé budovy (`prototypes/growth.lua`), takže se sází taky na vodu.
+- Recepty řasové farmy a rákosového filtru nemají vstupy, berou si jen vodu a slunce (a energii ze sítě).
+- **Proč rákosový filtr dělá vápenec:** skály jsou jediný zdroj vápence a časem dojdou. Filtr je obnovitelný zdroj.
+- **Proč místo rychlejšího růstu enzymy:** Factorio nemá technologický efekt na rychlost růstu rostlin,
+  `change-recipe-productivity` na receptech trávicí komory ano.
 
 ## Fáze
 | # | Obsah | Verze |
@@ -78,9 +90,12 @@ Technicky jde o `tile_buildability_rules` s `required_tiles = {layers = {water_t
 | 3 | síť podhoubí: listy, kvasná komora, hlíza, houbové uzly | 0.4.0 ✅ |
 | 4 | pěstované budovy, houbová farma, nervová tkáň, chitin, mravenčí dílna III | 0.5.0 ✅ |
 | 5 | CRISPR-Cas9 (balíček 3), bioroboti: úl, včely dělnice, čmeláci stavitelé, plástve | 0.6.0 ✅ |
-| 6 | budovy na vodě, balíček 4 | – |
+| 6 | rostlinný olej, budovy na vodě, syntetický genom (balíček 4), syntetické enzymy | 0.7.0 ✅ |
+| 7 | ? (viz nápady) | – |
 
 ## Nápady na později
+- Rychlejší růst plodin přes výzkum (jen skriptem, např. kratší `growth_ticks` u nově zasazených rostlin).
+- Vlastní grafika budov na vodě (teď přebarvená montážka, chemička a jaderný reaktor).
 - Animace růstu plodin (`growth_variations` potřebuje speciální textury). Teď rostlina vypadá
   od zasazení jako dorostlá.
 - Lepší grafika budov, zatím jsou to přebarvené vanilla stroje.
@@ -90,6 +105,8 @@ Technicky jde o `tile_buildability_rules` s `required_tiles = {layers = {water_t
 
 ## Technické poznámky
 - Testy běží headless: `factorio --create` (načtení prototypů) a `--benchmark` s testovacím modem.
+  Vlastní `config.ini` s `write-data` mimo `~/.factorio`, aby test nepřepisoval logy hry.
+  `surface.create_entity` nekontroluje technologie: recept v testu funguje až po `technologies[..].researched = true`.
 - Zrádnosti Factoria 2.1:
   - recept má `categories = {..}`, ne `category`,
   - produkt má `independent_probability`, ne `probability`,

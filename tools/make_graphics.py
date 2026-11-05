@@ -595,6 +595,49 @@ def draw_bee(c, x=32, y=34, s=1.0):
     c.circle(x, y - 14 * s, 7 * s + 1.5, OUT); c.circle(x, y - 14 * s, 7 * s, "#3e2723")
 
 
+def draw_algae(c):
+    c.ellipse(32, 40, 28, 16, OUT)
+    c.ellipse(32, 40, 26.5, 14.5, "#3d7fa6")
+    for x, y, r, col in [(20, 38, 7, "#5fbf5a"), (34, 34, 8, "#7ed36a"), (44, 42, 6, "#4caf50"), (28, 46, 5, "#8bd47a")]:
+        c.circle(x, y, r + 1, OUT)
+        c.circle(x, y, r, col)
+    c.ellipse(30, 32, 4, 2, "#c8f0b8", -0.4)
+
+
+def draw_reed(c, x=32, y=34, s=1.0):
+    c.ellipse(x, y + 22 * s, 24 * s, 6 * s, "#3d7fa6")
+    for off, h in [(-12, 34), (-4, 42), (4, 38), (12, 30)]:
+        c.line(x + off * s, y + 22 * s, x + off * s, y + (22 - h) * s, 2 * s, "#6a8f3a")
+        c.ellipse(x + off * s, y + (22 - h + 5) * s, 3.5 * s + 1, 7 * s + 1, OUT)
+        c.ellipse(x + off * s, y + (22 - h + 5) * s, 3.5 * s, 7 * s, "#8d5a2b")
+
+
+def draw_lotus(c, x=32, y=36, s=1.0):
+    c.ellipse(x, y + 12 * s, 28 * s, 8 * s, "#4caf50")
+    for k, (a, l) in enumerate([(-1.1, 18), (-0.55, 22), (0, 24), (0.55, 22), (1.1, 18)]):
+        ex, ey = x + math.sin(a) * l * s, y - math.cos(a) * l * s + 8 * s
+        mx, my = (x + ex) / 2, (y + 8 * s + ey) / 2
+        c.ellipse(mx, my, 6 * s + 1, l * s / 2 + 1, OUT, a)
+        c.ellipse(mx, my, 6 * s, l * s / 2, "#f48fb1" if k % 2 else "#f8bbd0", a)
+    c.circle(x, y + 6 * s, 4 * s, "#fdd835")
+
+
+def draw_plant_oil(c):
+    c.poly([(26, 6), (38, 6), (38, 18), (48, 28), (48, 58), (16, 58), (16, 28), (26, 18)], OUT)
+    c.poly([(28, 8), (36, 8), (36, 19), (46, 29), (46, 56), (18, 56), (18, 29), (28, 19)], "#fff8e1")
+    c.poly([(18, 34), (46, 34), (46, 56), (18, 56)], "#e6b422")
+    c.rect(25, 3, 39, 8, "#6d4c41")
+    leaves(c, 32, 52, 0.6, "#5a8f2e", 3, 0.6, 14)
+
+
+def draw_synthetic_genome(c):
+    c.poly([(32, 4), (56, 18), (56, 46), (32, 60), (8, 46), (8, 18)], OUT)
+    c.poly([(32, 7), (53.5, 19.5), (53.5, 44.5), (32, 57), (10.5, 44.5), (10.5, 19.5)], "#1f3b4d")
+    helix(c, 32, 12, 32, 52, 9, 2, 2.4, "#4dd0e1", "#f48fb1")
+    c.circle(32, 32, 5, OUT)
+    c.circle(32, 32, 3.5, "#fdd835")
+
+
 # ---------------------------------------------------------------- entity sprites (crop on soil)
 
 
@@ -680,6 +723,8 @@ def main():
         "mushroom": draw_mushroom, "mycelium": draw_mycelium, "nerve-tissue": draw_nerve_tissue,
         "chitin": draw_chitin, "seedling": draw_seedling,
         "bacteria-culture": draw_bacteria_culture, "crispr-kit": draw_crispr_kit, "bee": draw_bee,
+        "algae": draw_algae, "reed": draw_reed, "lotus": draw_lotus, "plant-oil": draw_plant_oil,
+        "synthetic-genome": draw_synthetic_genome,
         "biocement": draw_biocement, "sugar": draw_sugar, "digester-badge": draw_digester_badge,
     }
     for name, (fn, tint) in crops.items():

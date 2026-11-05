@@ -40,6 +40,9 @@ for short, seconds in pairs(GROWN) do
       width = 128, height = 128, scale = size / 4,
     },
     map_color = { 0.4, 0.6, 0.3 },
+    -- Water buildings: the sprout has to be planted on water too.
+    collision_mask = table.deepcopy(e.collision_mask),
+    tile_buildability_rules = table.deepcopy(e.tile_buildability_rules),
   }
 
   local sprout_item = table.deepcopy(item)

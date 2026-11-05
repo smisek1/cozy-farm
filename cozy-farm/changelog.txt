@@ -1,4 +1,15 @@
 ---------------------------------------------------------------------------------------------------
+Version: 0.7.0
+Date: 2026-11-05
+  Features:
+    - Water buildings standing directly on water: algae farm (algae from sunlight), reed filter (renewable
+      limestone and sugar) and lotus reactor (burns food into 1.5 MW of network energy). All three are grown
+      from sprouts planted on water.
+    - Plant oil (8 MJ food) pressed from flax seeds or algae in the digester.
+    - Synthetic genome (science pack 4) from CRISPR kit, algae, plant oil and nerve tissue.
+    - Technologies: plant oil, water buildings, synthetic genome, lotus reactor, synthetic enzymes
+      (+20 % digester productivity).
+---------------------------------------------------------------------------------------------------
 Version: 0.6.0
 Date: 2026-11-04
   Features:

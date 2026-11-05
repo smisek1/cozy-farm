@@ -10,4 +10,7 @@ return {
   ["mushroom-farm"] = 90,
   ["fermentation-chamber"] = 90,
   ["sequencer"] = 180,
+  ["algae-farm"] = 90,
+  ["reed-filter"] = 90,
+  ["lotus-reactor"] = 180,
 }
