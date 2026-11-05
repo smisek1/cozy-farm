@@ -27,6 +27,9 @@ end
 local algae_farm, algae_farm_item = common.machine("assembling-machine", "assembling-machine-2", "algae-farm",
   { badge = "algae", tint = { 0.55, 0.95, 0.6 }, categories = { "cozy-algae" }, speed = 1, order = "j-a" })
 algae_farm.fluid_boxes = nil
+common.own_look(algae_farm, algae_farm_item, "algae-farm")
+algae_farm.graphics_set = { animation = common.own_sprite("algae-farm", 224, 224, 112) }
+algae_farm.graphics_set_flipped = nil
 electric(algae_farm, "100kW")
 on_water(algae_farm)
 
@@ -34,18 +37,18 @@ on_water(algae_farm)
 local reed, reed_item = common.machine("assembling-machine", "chemical-plant", "reed-filter",
   { badge = "reed", tint = { 0.8, 0.95, 0.55 }, categories = { "cozy-reed" }, speed = 1, order = "j-b" })
 reed.fluid_boxes = nil
+common.own_look(reed, reed_item, "reed-filter")
+reed.graphics_set = { animation = common.own_sprite("reed-filter", 256, 320, 200) }
+reed.graphics_set_flipped = nil
 electric(reed, "100kW")
 on_water(reed)
 
 -- Lotus reactor: a big floating lotus burning food (best: plant oil) into network energy.
 local nuclear = data.raw.reactor["nuclear-reactor"]
-local LOTUS = { 1, 0.7, 0.85 }
-local anim = table.deepcopy(nuclear.picture)
-common.tint_graphics(anim, LOTUS)
 local lotus = {
   type = "burner-generator",
   name = P .. "lotus-reactor",
-  icons = common.badged(nuclear.icon, "lotus", LOTUS),
+  icons = { { icon = common.icon("lotus-reactor"), icon_size = 64 } },
   flags = { "placeable-neutral", "player-creation" },
   minable = { mining_time = 0.5, result = P .. "lotus-reactor" },
   max_health = 500,
@@ -54,7 +57,7 @@ local lotus = {
   collision_box = table.deepcopy(nuclear.collision_box),
   selection_box = table.deepcopy(nuclear.selection_box),
   max_power_output = "1.5MW",
-  animation = anim,
+  animation = common.own_sprite("lotus-reactor", 384, 384, 200),
   burner = common.fed_energy(),
   energy_source = { type = "electric", usage_priority = "secondary-output" },
   open_sound = nuclear.open_sound,

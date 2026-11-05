@@ -1,4 +1,13 @@
 ---------------------------------------------------------------------------------------------------
+Version: 0.8.0
+Date: 2026-11-05
+  Features:
+    - Growing from blueprints: a grown building placed by robots, blueprints or other mods is replaced by its
+      sprout, which grows like a hand-planted one and keeps the blueprint recipe.
+    - Own graphics and icons for 18 buildings: digester, fermentation chamber, mushroom farm, ant workshops I-III,
+      spider spinner, mill, kitchen, chicken coop, barn, sheep pen, genetic lab, DNA sequencer, hive, algae farm,
+      reed filter and lotus reactor.
+---------------------------------------------------------------------------------------------------
 Version: 0.7.0
 Date: 2026-11-05
   Features:

@@ -18,6 +18,8 @@ včetně budov**. Kovy, uhlí, ropa ani uran nejsou potřeba.
 | Továrny | hmyzí kolonie, trávicí komory, pěstované budovy, houby a mycelium |
 | Space Age (planety, rakety) | zatím neřešit |
 | Kvalita (Space Age) | **nepoužívá se** (technologie kvality jsou skryté) |
+| Rychlejší růst plodin výzkumem | **ne** |
+| Zalévání / hnojivo pro zárodky | **ne**, zárodek roste sám |
 
 ## Suroviny (místo kovů)
 | Vanilla | Cozy Farm | Odkud | Stav |
@@ -91,21 +93,32 @@ Lotosový reaktor (energie), rákosový filtr (vápenec, cukr) a řasová farma 
 | 4 | pěstované budovy, houbová farma, nervová tkáň, chitin, mravenčí dílna III | 0.5.0 ✅ |
 | 5 | CRISPR-Cas9 (balíček 3), bioroboti: úl, včely dělnice, čmeláci stavitelé, plástve | 0.6.0 ✅ |
 | 6 | rostlinný olej, budovy na vodě, syntetický genom (balíček 4), syntetické enzymy | 0.7.0 ✅ |
-| 7 | ? (viz nápady) | – |
+| 7 | pěstování přes blueprinty (roboti sázejí zárodky), vlastní grafika budov | 0.8.0 ✅ |
+| 8 | ? (viz nápady) | – |
+
+## Fáze 7
+- **Pěstování přes blueprinty:** ✅ Když vzrostlou budovu postaví robot, blueprint nebo jiný mod, skript ji
+  hned nahradí zárodkem na stejném místě (stejná orientace). Zárodek vyroste jako ručně zasazený a dostane
+  recept z blueprintu. Ochrana proti smyčce: během `grow()` je nastavený příznak `growing`, aby se vyrostlá
+  budova (`raise_built`) znovu nepřevedla na zárodek.
+- **Vlastní grafika budov:** ✅ Kreslí se v `tools/make_graphics.py` (funkce `building()`: sprite 64 px na
+  dlaždici, stín a ikona z jedné kresby, zatím bez animace). Do prototypů je dává `prototypes/looks.lua`
+  (podle typu entity: `graphics_set`, `animation`, `on/off_animation`, u úlu `base`).
+  - budovy: trávicí a kvasná komora, houbová farma, mravenčí dílny I–III, přadlena, mlýn, kuchyně, kurník,
+    stáj, ovčín, genetická laboratoř, sekvenátor, úl, řasová farma, rákosový filtr, lotosový reaktor
+  - **přebarvené zůstávají** animované nebo drobné věci: pásy, tunely, rozdělovače, úponky, včely, čmeláci,
+    plástve, zahradní a lesní věž (jeřáb), houbové uzly, listy, hlízy
+  - rozměry spritu v `make_graphics.py` a v `looks.lua` musí sedět (headless test je nekontroluje)
 
 ## Nápady na později
-- Rychlejší růst plodin přes výzkum (jen skriptem, např. kratší `growth_ticks` u nově zasazených rostlin).
-- Vlastní grafika budov na vodě (teď přebarvená montážka, chemička a jaderný reaktor).
 - Animace růstu plodin (`growth_variations` potřebuje speciální textury). Teď rostlina vypadá
-  od zasazení jako dorostlá.
-- Lepší grafika budov, zatím jsou to přebarvené vanilla stroje.
-- Úl (složité díly).
-- Pěstování přes blueprinty: roboti zatím staví budovu rovnou dospělou (jako materiál použijí zárodek).
-- Zárodek by mohl potřebovat zalévání nebo hnojivo, aby rostl rychleji.
+  od zasazení jako dorostlá. **Ano, ale až v budoucnu.**
+- Úl (složité díly). **Zatím nerozhodnuto.**
 
 ## Technické poznámky
 - Testy běží headless: `factorio --create` (načtení prototypů) a `--benchmark` s testovacím modem.
   Vlastní `config.ini` s `write-data` mimo `~/.factorio`, aby test nepřepisoval logy hry.
+  Headless režim nenačítá sprity: grafiku (rozměry, posun) je potřeba ověřit ve hře.
   `surface.create_entity` nekontroluje technologie: recept v testu funguje až po `technologies[..].researched = true`.
 - Zrádnosti Factoria 2.1:
   - recept má `categories = {..}`, ne `category`,

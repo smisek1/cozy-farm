@@ -14,9 +14,10 @@ SS = 4  # supersampling factor for anti-aliasing
 
 
 class Canvas:
-    def __init__(self, w, h):
+    def __init__(self, w, h, ss=SS):
+        self.ss = ss
         self.w, self.h = w, h
-        self.W, self.H = w * SS, h * SS
+        self.W, self.H = w * self.ss, h * self.ss
         self.px = [[0.0, 0.0, 0.0, 0.0] for _ in range(self.W * self.H)]
 
     def _blend(self, x, y, c):
@@ -33,14 +34,14 @@ class Canvas:
         """inside(x, y) in output-pixel coordinates (floats)."""
         c = rgba(color)
         x0, y0, x1, y1 = bbox
-        X0 = max(0, int(math.floor(x0 * SS)))
-        Y0 = max(0, int(math.floor(y0 * SS)))
-        X1 = min(self.W, int(math.ceil(x1 * SS)) + 1)
-        Y1 = min(self.H, int(math.ceil(y1 * SS)) + 1)
+        X0 = max(0, int(math.floor(x0 * self.ss)))
+        Y0 = max(0, int(math.floor(y0 * self.ss)))
+        X1 = min(self.W, int(math.ceil(x1 * self.ss)) + 1)
+        Y1 = min(self.H, int(math.ceil(y1 * self.ss)) + 1)
         for Y in range(Y0, Y1):
-            fy = (Y + 0.5) / SS
+            fy = (Y + 0.5) / self.ss
             for X in range(X0, X1):
-                if inside((X + 0.5) / SS, fy):
+                if inside((X + 0.5) / self.ss, fy):
                     self._blend(X, Y, c)
 
     def ellipse(self, cx, cy, rx, ry, color, angle=0.0):
@@ -93,12 +94,12 @@ class Canvas:
             row = bytearray([0])
             for x in range(self.w):
                 r = g = b = a = 0.0
-                for sy in range(SS):
-                    base = (y * SS + sy) * self.W + x * SS
-                    for sx in range(SS):
+                for sy in range(self.ss):
+                    base = (y * self.ss + sy) * self.W + x * self.ss
+                    for sx in range(self.ss):
                         p = self.px[base + sx]
                         r += p[0]; g += p[1]; b += p[2]; a += p[3]
-                n = SS * SS
+                n = self.ss * self.ss
                 r, g, b, a = r / n, g / n, b / n, a / n
                 if a > 0:
                     r, g, b = r / a, g / a, b / a  # un-premultiply
@@ -698,6 +699,520 @@ def mound(path):
     c.save(path)
 
 
+# ---------------------------------------------------------------- building sprites
+# Drawn in tile units: (cx, cy) is the building centre, s = pixels per tile (64 for entity sprites).
+# Each building has draw(c, cx, cy, s) and shadow(c, cx, cy, s).
+
+SHADOW = (0, 0, 0, 0.55)
+
+
+def algae_farm(c, cx, cy, s):
+    import random
+    rnd = random.Random(11)
+    c.ellipse(cx, cy + 0.1 * s, 1.6 * s, 1.45 * s, (0.75, 0.9, 1, 0.3))          # ripple on water
+    c.ellipse(cx, cy + 0.12 * s, 1.47 * s, 1.32 * s, OUT)
+    c.ellipse(cx, cy + 0.1 * s, 1.43 * s, 1.28 * s, "#6b4f33")                   # front wall
+    c.ellipse(cx, cy - 0.02 * s, 1.43 * s, 1.24 * s, "#a07a52")                  # rim top
+    for k in range(28):                                                         # woven rim
+        a = k * 2 * math.pi / 28
+        x, y = cx + math.cos(a) * 1.3 * s, cy - 0.02 * s + math.sin(a) * 1.12 * s
+        c.line(x - 0.06 * s, y - 0.04 * s, x + 0.06 * s, y + 0.04 * s, 0.04 * s, "#7a5a3a")
+    c.ellipse(cx, cy - 0.05 * s, 1.16 * s, 0.98 * s, "#1f5e46")                  # water
+    c.ellipse(cx, cy - 0.1 * s, 1.08 * s, 0.9 * s, "#2f7a5a")
+    for _ in range(26):                                                         # algae mats
+        a, r = rnd.uniform(0, 2 * math.pi), rnd.uniform(0, 0.85)
+        x, y = cx + math.cos(a) * r * s, cy - 0.08 * s + math.sin(a) * r * 0.85 * s
+        col = rnd.choice(["#5fbf5a", "#7ed36a", "#4caf50", "#9ad97a"])
+        c.ellipse(x, y, rnd.uniform(0.08, 0.2) * s, rnd.uniform(0.06, 0.14) * s, col, rnd.uniform(0, 3))
+    for _ in range(10):                                                         # bubbles
+        a, r = rnd.uniform(0, 2 * math.pi), rnd.uniform(0, 0.8)
+        c.circle(cx + math.cos(a) * r * s, cy - 0.08 * s + math.sin(a) * r * 0.85 * s, 0.035 * s, (1, 1, 1, 0.8))
+    for a in (math.pi * 1.25, math.pi * 1.75, math.pi * 0.5):                   # light posts with glowing bulbs
+        x, y = cx + math.cos(a) * 1.3 * s, cy - 0.02 * s + math.sin(a) * 1.12 * s
+        c.line(x, y, x, y - 0.55 * s, 0.07 * s, OUT)
+        c.line(x, y, x, y - 0.55 * s, 0.04 * s, "#8d6e4a")
+        c.circle(x, y - 0.6 * s, 0.13 * s, (0.7, 1, 0.5, 0.35))
+        c.circle(x, y - 0.6 * s, 0.08 * s, "#c6ff8a")
+
+
+def algae_farm_shadow(c, cx, cy, s):
+    c.ellipse(cx + 0.25 * s, cy + 0.2 * s, 1.45 * s, 1.25 * s, SHADOW)
+
+
+REED_SPOTS = [(-0.9, -0.85), (0.1, -0.95), (0.95, -0.8), (-0.6, 0.0), (0.55, 0.05), (-1.0, 0.85), (0.0, 0.8), (0.95, 0.9)]
+
+
+def reed_filter(c, cx, cy, s):
+    import random
+    rnd = random.Random(5)
+    c.ellipse(cx, cy + 0.15 * s, 1.75 * s, 1.6 * s, (0.75, 0.9, 1, 0.25))         # ripple
+    c.rect(cx - 1.45 * s, cy - 1.35 * s, cx + 1.45 * s, cy + 1.55 * s, OUT)
+    c.rect(cx - 1.4 * s, cy + 1.3 * s, cx + 1.4 * s, cy + 1.5 * s, "#6b4f33")      # front edge of the raft
+    c.rect(cx - 1.4 * s, cy - 1.3 * s, cx + 1.4 * s, cy + 1.3 * s, "#a07a52")
+    for k in range(8):                                                          # logs
+        y = cy - 1.3 * s + (k + 0.5) * 2.6 * s / 8
+        c.line(cx - 1.38 * s, y, cx + 1.38 * s, y, 0.03 * s, "#7a5a3a")
+    for y0 in (-0.95, -0.1, 0.75):                                              # filtering channels
+        c.rect(cx - 1.25 * s, cy + (y0 - 0.25) * s, cx + 1.25 * s, cy + (y0 + 0.25) * s, "#2b5f78")
+        c.rect(cx - 1.2 * s, cy + (y0 - 0.2) * s, cx + 1.2 * s, cy + (y0 + 0.2) * s, "#3f88a8")
+        for k in range(5):
+            x = cx + (-1 + k * 0.5) * s
+            c.line(x, cy + y0 * s, x + 0.2 * s, cy + y0 * s, 0.025 * s, (1, 1, 1, 0.6))
+    for dx, dy in sorted(REED_SPOTS, key=lambda p: p[1]):                       # back to front
+        bx, by = cx + dx * s, cy + dy * s
+        for k in range(5):
+            ox = (k - 2) * 0.09 * s
+            h = rnd.uniform(1.1, 1.7) * s
+            lean = rnd.uniform(-0.15, 0.15) * s
+            tx, ty = bx + ox + lean, by - h
+            c.line(bx + ox, by, tx, ty, 0.06 * s, OUT)
+            c.line(bx + ox, by, tx, ty, 0.035 * s, "#7fa046")
+            if k % 2 == 0:                                                      # cattail
+                c.ellipse(tx, ty + 0.22 * s, 0.07 * s + 1, 0.2 * s + 1, OUT)
+                c.ellipse(tx, ty + 0.22 * s, 0.07 * s, 0.2 * s, "#8d5a2b")
+            else:                                                               # leaf
+                c.line(bx + ox, by - 0.2 * s, bx + ox + rnd.choice((-1, 1)) * 0.35 * s, by - 0.9 * s, 0.03 * s, "#9cc35a")
+
+
+def reed_filter_shadow(c, cx, cy, s):
+    c.rect(cx - 1.2 * s, cy - 1.1 * s, cx + 1.7 * s, cy + 1.7 * s, SHADOW)
+    for dx, dy in REED_SPOTS:
+        bx, by = cx + dx * s, cy + dy * s
+        c.line(bx, by, bx + 1.2 * s, by + 0.5 * s, 0.25 * s, SHADOW)
+
+
+def lotus_reactor(c, cx, cy, s):
+    c.ellipse(cx, cy + 0.2 * s, 2.55 * s, 2.25 * s, (0.75, 0.9, 1, 0.3))          # ripple
+    c.ellipse(cx, cy + 0.15 * s, 2.42 * s, 2.12 * s, OUT)
+    c.ellipse(cx, cy + 0.15 * s, 2.38 * s, 2.08 * s, "#2f7a35")                   # pad edge
+    c.ellipse(cx, cy + 0.05 * s, 2.32 * s, 2.0 * s, "#4f9e48")
+    c.poly([(cx, cy + 0.05 * s), (cx + 0.5 * s, cy + 2.1 * s), (cx + 1.0 * s, cy + 1.9 * s)], "#2b5f78")  # notch
+    for k in range(14):                                                         # veins
+        a = k * 2 * math.pi / 14 + 0.1
+        c.line(cx, cy + 0.05 * s, cx + math.cos(a) * 2.1 * s, cy + 0.05 * s + math.sin(a) * 1.8 * s, 0.035 * s, "#3d8a3a")
+    c.circle(cx, cy - 0.5 * s, 1.4 * s, (1, 0.9, 0.6, 0.18))                      # glow
+    for ring, (n, length, width, lift, cols) in enumerate([
+        (10, 1.25, 0.42, 0.25, ("#f48fb1", "#f06292")),
+        (8, 1.0, 0.38, 0.5, ("#f8bbd0", "#f48fb1")),
+        (6, 0.72, 0.32, 0.75, ("#fce4ec", "#f8bbd0")),
+    ]):
+        petals = []
+        for k in range(n):
+            a = k * 2 * math.pi / n + ring * 0.3
+            petals.append((math.sin(a), a))
+        for _, a in sorted(petals):                                             # back petals first
+            px = cx + math.cos(a) * length * 0.55 * s
+            py = cy - lift * s + math.sin(a) * length * 0.38 * s
+            ang = math.atan2(math.sin(a) * 0.7, math.cos(a))
+            c.ellipse(px, py, length * 0.55 * s + 1.5, width * s + 1.5, OUT, ang)
+            c.ellipse(px, py, length * 0.55 * s, width * s, cols[0], ang)
+            c.ellipse(px - math.cos(a) * 0.1 * s, py - 0.05 * s, length * 0.35 * s, width * 0.5 * s, cols[1], ang)
+    c.ellipse(cx, cy - 0.85 * s, 0.38 * s + 1.5, 0.26 * s + 1.5, OUT)               # seed pod
+    c.ellipse(cx, cy - 0.85 * s, 0.38 * s, 0.26 * s, "#fdd835")
+    for k in range(7):
+        a = k * 2 * math.pi / 7
+        c.circle(cx + math.cos(a) * 0.2 * s, cy - 0.85 * s + math.sin(a) * 0.12 * s, 0.04 * s, "#c49000")
+    c.circle(cx, cy - 0.85 * s, 0.6 * s, (1, 0.95, 0.5, 0.25))
+
+
+def lotus_reactor_shadow(c, cx, cy, s):
+    c.ellipse(cx + 0.35 * s, cy + 0.3 * s, 2.3 * s, 2.0 * s, (0, 0, 0, 0.35))
+    c.ellipse(cx + 0.9 * s, cy + 0.2 * s, 1.4 * s, 0.9 * s, SHADOW)
+
+
+# ---- helpers for land buildings
+
+
+def opoly(c, pts, color, w=1.5):
+    """Polygon with an outline: the outline is the full shape, the fill is shrunk w px towards the centre."""
+    mx = sum(p[0] for p in pts) / len(pts)
+    my = sum(p[1] for p in pts) / len(pts)
+    c.poly(pts, OUT)
+    inner = []
+    for x, y in pts:
+        d = math.hypot(x - mx, y - my) or 1
+        inner.append((x + (mx - x) * w / d, y + (my - y) * w / d))
+    c.poly(inner, color)
+
+
+def oellipse(c, x, y, rx, ry, color, angle=0.0, w=1.5):
+    c.ellipse(x, y, rx + w, ry + w, OUT, angle)
+    c.ellipse(x, y, rx, ry, color, angle)
+
+
+def grass(c, cx, cy, s, rx=1.5, ry=1.35, col="#6fa84a"):
+    c.ellipse(cx, cy + 0.1 * s, rx * s + 1.5, ry * s + 1.5, (0.17, 0.11, 0.07, 0.6))
+    c.ellipse(cx, cy + 0.1 * s, rx * s, ry * s, col)
+    c.ellipse(cx - 0.2 * s, cy - 0.05 * s, rx * 0.8 * s, ry * 0.7 * s, shade(col, 1.12))
+
+
+def house(c, x0, x1, yb, hw, rh, d, wall, roof):
+    """3/4 view house: front wall x0..x1 standing on yb (hw tall), gable roof rh tall, d deep (drawn upwards)."""
+    cx, yt, e = (x0 + x1) / 2, yb - hw, (x1 - x0) * 0.06
+    opoly(c, [(x0, yb), (x0, yt - d), (x1, yt - d), (x1, yb)], shade(wall, 0.75))                 # side/back mass
+    opoly(c, [(x0 - e, yt), (cx, yt - rh), (cx, yt - rh - d), (x0 - e, yt - d)], shade(roof, 0.8))  # roof planes
+    opoly(c, [(x1 + e, yt), (cx, yt - rh), (cx, yt - rh - d), (x1 + e, yt - d)], roof)
+    opoly(c, [(x0, yb), (x0, yt), (x1, yt), (x1, yb)], wall)                                        # front wall
+    opoly(c, [(x0 - e, yt + 1), (x1 + e, yt + 1), (cx, yt - rh)], shade(wall, 1.1))                 # gable
+
+
+def fence(c, x0, y0, x1, y1, s, col="#8d6e4a"):
+    """Fence along the rectangle edges (posts + two rails)."""
+    k = s / 64
+    for (ax, ay), (bx, by) in [((x0, y0), (x1, y0)), ((x1, y0), (x1, y1)), ((x1, y1), (x0, y1)), ((x0, y1), (x0, y0))]:
+        for h in (0.12, 0.26):
+            c.line(ax, ay - h * s, bx, by - h * s, 2.4 * k, OUT)
+            c.line(ax, ay - h * s, bx, by - h * s, 1.4 * k, col)
+        n = max(2, int(math.hypot(bx - ax, by - ay) / (0.4 * s)))
+        for i in range(n + 1):
+            px, py = ax + (bx - ax) * i / n, ay + (by - ay) * i / n
+            c.line(px, py, px, py - 0.34 * s, 3.4 * k, OUT)
+            c.line(px, py, px, py - 0.34 * s, 2.2 * k, shade(col, 0.85))
+
+
+def blob_shadow(rx, ry, dx=0.4, dy=0.2, tall=0.0):
+    """Generic shadow: footprint blob, plus a stretched blob to the right for tall buildings."""
+    def f(c, cx, cy, s):
+        c.ellipse(cx + dx * s, cy + dy * s, rx * s, ry * s, SHADOW)
+        if tall:
+            c.ellipse(cx + (rx * 0.6 + tall * 0.5) * s, cy + 0.2 * s, tall * 0.7 * s, ry * 0.55 * s, SHADOW)
+    return f
+
+
+def scatter(rnd, n, rx, ry):
+    for _ in range(n):
+        a, r = rnd.uniform(0, 2 * math.pi), math.sqrt(rnd.uniform(0, 1))
+        yield math.cos(a) * r * rx, math.sin(a) * r * ry
+
+
+# ---- the buildings
+
+
+def digester(c, cx, cy, s):
+    import random
+    rnd = random.Random(2)
+    k = s / 64
+    c.ellipse(cx, cy + 0.45 * s, 1.45 * s, 0.95 * s, "#6b4423")                     # soil
+    c.ellipse(cx, cy + 0.4 * s, 1.35 * s, 0.85 * s, "#82552e")
+    for side in (-1, 1):                                                            # intestine loops
+        oellipse(c, cx + side * 0.95 * s, cy + 0.55 * s, 0.42 * s, 0.3 * s, "#e8a0ab", side * 0.4, 1.5 * k)
+        c.ellipse(cx + side * 0.95 * s, cy + 0.55 * s, 0.2 * s, 0.1 * s, "#c9707f", side * 0.4)
+    oellipse(c, cx, cy - 0.1 * s, 1.2 * s, 1.0 * s, "#d97a8a", 0, 2 * k)           # stomach
+    c.ellipse(cx - 0.1 * s, cy + 0.25 * s, 1.05 * s, 0.6 * s, "#c9687a")
+    c.ellipse(cx - 0.35 * s, cy - 0.45 * s, 0.6 * s, 0.35 * s, "#f2b3bd", -0.4)
+    for _ in range(7):                                                              # veins
+        x, y = cx + rnd.uniform(-0.8, 0.8) * s, cy + rnd.uniform(-0.6, 0.5) * s
+        a = rnd.uniform(0, math.pi)
+        for _ in range(3):
+            nx, ny = x + math.cos(a) * 0.18 * s, y + math.sin(a) * 0.18 * s
+            c.line(x, y, nx, ny, 1.6 * k, "#a64b5c")
+            x, y, a = nx, ny, a + rnd.uniform(-0.8, 0.8)
+    oellipse(c, cx + 0.15 * s, cy - 0.75 * s, 0.25 * s, 0.13 * s, "#7a2f3d", 0, 1.5 * k)  # mouth
+    for x, y in [(0.5, -0.3), (-0.55, 0.05), (0.2, 0.2)]:
+        c.circle(cx + x * s, cy + y * s, 0.06 * s, (1, 0.9, 0.92, 0.8))
+
+
+def fermentation_chamber(c, cx, cy, s):
+    k = s / 64
+    grass(c, cx, cy + 0.3 * s, s, 1.45, 1.0)
+    top, bot, rx = cy - 0.75 * s, cy + 0.85 * s, 1.1 * s
+    oellipse(c, cx, bot, rx, 0.42 * s, "#6b4f33", 0, 2 * k)                          # barrel
+    opoly(c, [(cx - rx, top), (cx + rx, top), (cx + rx, bot), (cx - rx, bot)], "#a07a52", 2 * k)
+    c.ellipse(cx, bot, rx - 2 * k, 0.4 * s, "#a07a52")
+    for i in range(1, 8):                                                           # staves
+        x = cx - rx + i * 2 * rx / 8
+        c.line(x, top + 0.2 * s, x, bot + 0.3 * s * math.sqrt(max(0, 1 - ((x - cx) / rx) ** 2)), 1.2 * k, "#7a5a3a")
+    for y in (top + 0.35 * s, bot - 0.3 * s):                                       # vine hoops
+        for i in range(24):
+            a0, a1 = math.pi * i / 24, math.pi * (i + 1) / 24
+            c.line(cx - math.cos(a0) * rx, y + math.sin(a0) * 0.4 * s, cx - math.cos(a1) * rx, y + math.sin(a1) * 0.4 * s,
+                   4 * k, "#4f8f3a")
+        for x in (-0.7, 0.1, 0.8):
+            c.ellipse(cx + x * s, y + 0.3 * s * math.sqrt(1 - x * x / 1.21), 0.12 * s, 0.06 * s, "#7bc96f", 0.5)
+    oellipse(c, cx, top, rx, 0.42 * s, "#8d6e4a", 0, 2 * k)                          # rim + foam
+    c.ellipse(cx, top + 0.03 * s, rx * 0.86, 0.33 * s, "#f3e3b3")
+    for x, y, r in [(-0.5, 0, 0.12), (0.2, -0.08, 0.09), (0.55, 0.05, 0.1), (-0.1, 0.1, 0.07), (0.3, 0.12, 0.05)]:
+        c.circle(cx + x * s, top + y * s, r * s, "#e0a030")
+        c.circle(cx + x * s - r * 0.3 * s, top + y * s - r * 0.3 * s, r * 0.35 * s, "#fff3cf")
+
+
+def mini_mushroom(c, x, y, h, r, cap, k):
+    c.rect(x - r * 0.3 - 1.2 * k, y - h, x + r * 0.3 + 1.2 * k, y, OUT)
+    c.rect(x - r * 0.3, y - h, x + r * 0.3, y, "#f3e9d8")
+    c.ellipse(x, y - h, r + 1.5 * k, r * 0.6 + 1.5 * k, OUT)
+    c.ellipse(x, y - h, r, r * 0.6, cap)
+    c.ellipse(x - r * 0.3, y - h - r * 0.2, r * 0.3, r * 0.15, shade(cap, 1.3))
+
+
+def mushroom_farm(c, cx, cy, s):
+    import random
+    rnd = random.Random(4)
+    k = s / 64
+    grass(c, cx, cy + 0.2 * s, s, 1.5, 1.3, "#5f8f45")
+    for lx, ly in [(-0.1, -0.7), (0.0, 0.05), (0.05, 0.8)]:                          # mossy logs, back to front
+        x0, x1, y = cx - 1.1 * s + lx * s, cx + 1.1 * s + lx * s, cy + ly * s
+        opoly(c, [(x0, y - 0.25 * s), (x1, y - 0.25 * s), (x1, y + 0.2 * s), (x0, y + 0.2 * s)], "#7a5a3a", 1.5 * k)
+        oellipse(c, x1, y - 0.02 * s, 0.13 * s, 0.22 * s, "#c8a070", 0, 1.5 * k)
+        c.circle(x1, y - 0.02 * s, 0.06 * s, "#a07a52")
+        c.ellipse((x0 + x1) / 2 - 0.1 * s, y - 0.24 * s, 0.95 * s, 0.07 * s, "#6f9a3a")
+        for _ in range(5):
+            x = rnd.uniform(x0 + 0.15 * s, x1 - 0.2 * s)
+            mini_mushroom(c, x, y - 0.18 * s, rnd.uniform(0.12, 0.28) * s, rnd.uniform(0.1, 0.17) * s,
+                          rnd.choice(["#c0392b", "#9c5fc9", "#e08a3a", "#b07ad9"]), k)
+    for x, y in [(-0.7, -0.4), (0.5, 0.45), (0.9, -0.3)]:                           # glowing spores
+        c.circle(cx + x * s, cy + y * s - 0.6 * s, 0.07 * s, (0.85, 0.75, 1, 0.5))
+        c.circle(cx + x * s, cy + y * s - 0.6 * s, 0.035 * s, "#f3e8ff")
+
+
+def ant_workshop(level):
+    def draw(c, cx, cy, s):
+        import random
+        rnd = random.Random(10 + level)
+        k = s / 64
+        sand = ["#c9a26b", "#b8875a", "#a0674a"][level - 1]
+        c.ellipse(cx, cy + 0.45 * s, 1.5 * s, 0.95 * s, shade(sand, 0.7))
+        c.ellipse(cx, cy + 0.4 * s, 1.4 * s, 0.85 * s, shade(sand, 0.85))
+        if level >= 2:                                                              # twig scaffolding behind
+            for x in (-1.1, 1.1):
+                c.line(cx + x * s, cy + 0.4 * s, cx + x * 0.8 * s, cy - 1.5 * s, 3 * k, OUT)
+                c.line(cx + x * s, cy + 0.4 * s, cx + x * 0.8 * s, cy - 1.5 * s, 2 * k, "#8d6e4a")
+            c.line(cx - 0.9 * s, cy - 1.45 * s, cx + 0.9 * s, cy - 1.45 * s, 3 * k, OUT)
+            c.line(cx - 0.9 * s, cy - 1.45 * s, cx + 0.9 * s, cy - 1.45 * s, 2 * k, "#8d6e4a")
+            for x in (-0.7, -0.2, 0.3, 0.8):
+                c.ellipse(cx + x * s, cy - 1.5 * s, 0.22 * s, 0.1 * s, "#6fbf4a", 0.3)
+        side = [(-0.95, 0.35, 0.45)] + ([(0.95, 0.4, 0.5)] if level >= 2 else []) + ([(0.0, 0.75, 0.4)] if level >= 3 else [])
+        mounds = [(0, -0.05, 0.85 + 0.12 * level)] + side
+        for mx, my, mr in sorted(mounds, key=lambda m: m[1]):
+            bx, by = cx + mx * s, cy + my * s + 0.3 * s
+            top = by - mr * 1.6 * s
+            opoly(c, [(bx - mr * s, by), (bx - 0.18 * mr * s, top), (bx + 0.18 * mr * s, top), (bx + mr * s, by)], sand, 1.5 * k)
+            c.poly([(bx - mr * 0.9 * s, by - 2 * k), (bx - 0.15 * mr * s, top + 2 * k), (bx, top + 2 * k), (bx - 0.2 * mr * s, by - 2 * k)],
+                   shade(sand, 1.12))
+            c.ellipse(bx, by, mr * s, 0.18 * mr * s, shade(sand, 0.85))
+            for hy in (0.35, 0.7):
+                c.ellipse(bx + 0.1 * mr * s, top + hy * (by - top), 0.1 * mr * s, 0.07 * mr * s, "#3b2a20")
+            for _ in range(6):
+                c.circle(bx + rnd.uniform(-0.6, 0.6) * mr * s, by - rnd.uniform(0.1, 0.9) * (by - top), 0.025 * s, shade(sand, 0.7))
+            if level == 3:
+                for hy in (0.5, 0.85):                                              # chitin plates + nerve glow
+                    oellipse(c, bx - 0.35 * mr * s, top + hy * (by - top), 0.14 * mr * s, 0.09 * mr * s, "#2e7d6b", 0.3, 1.2 * k)
+                c.circle(bx + 0.4 * mr * s, top + 0.6 * (by - top), 0.06 * s, (1, 0.6, 0.8, 0.5))
+                c.circle(bx + 0.4 * mr * s, top + 0.6 * (by - top), 0.03 * s, "#f8bbd0")
+        for x, y in [(-0.4, 0.9), (0.6, 0.95), (1.2, 0.6), (-1.2, 0.8)]:            # ants carrying things
+            draw_ant(c, cx + x * s, cy + y * s, 0.22 * k)
+            c.rect(cx + x * s - 0.05 * s, cy + y * s - 0.22 * s, cx + x * s + 0.05 * s, cy + y * s - 0.14 * s, "#c8925a")
+    return draw
+
+
+def spider_spinner(c, cx, cy, s):
+    k = s / 64
+    grass(c, cx, cy + 0.2 * s, s, 1.5, 1.3)
+    posts = [(-1.15, -0.9), (1.15, -0.9), (1.15, 0.95), (-1.15, 0.95)]
+    tops = [(cx + x * s, cy + y * s - 1.3 * s) for x, y in posts]
+    for (x, y), (tx, ty) in zip(posts[:2], tops[:2]):                               # back posts
+        c.line(cx + x * s, cy + y * s, tx, ty, 5 * k, OUT); c.line(cx + x * s, cy + y * s, tx, ty, 3.4 * k, "#8d6e4a")
+    hub = (cx, cy - 0.65 * s)
+    anchors = tops + [(cx + x * s, cy + y * s) for x, y in posts]
+    for ax, ay in anchors:                                                          # radial silk threads
+        c.line(hub[0], hub[1], ax, ay, 1.3 * k, (1, 1, 1, 0.85))
+    angles = sorted(math.atan2(ay - hub[1], ax - hub[0]) for ax, ay in anchors)
+    for ring in range(1, 6):                                                        # spiral rings
+        f = ring / 6
+        pts = []
+        for a in angles:
+            ax, ay = next((x, y) for x, y in anchors if abs(math.atan2(y - hub[1], x - hub[0]) - a) < 1e-9)
+            pts.append((hub[0] + (ax - hub[0]) * f, hub[1] + (ay - hub[1]) * f))
+        for i in range(len(pts)):
+            c.line(*pts[i], *pts[(i + 1) % len(pts)], 1.0 * k, (1, 1, 1, 0.75))
+    for (x, y), (tx, ty) in zip(posts[2:], tops[2:]):                               # front posts
+        c.line(cx + x * s, cy + y * s, tx, ty, 5 * k, OUT); c.line(cx + x * s, cy + y * s, tx, ty, 3.4 * k, "#a07a52")
+    for a, b in [(0, 1), (1, 2), (2, 3), (3, 0)]:                                   # top beams
+        c.line(*tops[a], *tops[b], 4.5 * k, OUT); c.line(*tops[a], *tops[b], 3 * k, "#a07a52")
+    draw_spider(c, hub[0], hub[1], 0.8 * k)
+    for x in (-0.6, -0.1, 0.4):                                                     # silk spools in front
+        oellipse(c, cx + x * s, cy + 1.05 * s, 0.18 * s, 0.14 * s, "#fbfbff", 0, 1.2 * k)
+        c.ellipse(cx + x * s, cy + 1.05 * s, 0.07 * s, 0.05 * s, "#a1887f")
+
+
+def glass_dome(c, cx, cy, s, r, base_col, inner):
+    """Wooden base ring, plants/helix inside (inner callback), glass dome with ribs and highlight."""
+    k = s / 64
+    oellipse(c, cx, cy + 0.35 * r * s, r * s, 0.55 * r * s, shade(base_col, 0.75), 0, 2 * k)
+    c.ellipse(cx, cy + 0.28 * r * s, r * s - 2 * k, 0.5 * r * s, base_col)
+    c.ellipse(cx, cy + 0.28 * r * s, r * 0.85 * s, 0.4 * r * s, "#5f8f45")
+    inner(c, cx, cy, s)
+    c.ellipse(cx, cy - 0.25 * r * s, r * 0.95 * s, r * 0.85 * s, (0.75, 0.92, 1, 0.28))   # glass
+    for f in (-0.6, -0.2, 0.2, 0.6):                                                # ribs
+        x = cx + f * r * 0.95 * s
+        h = r * 0.85 * s * math.sqrt(1 - f * f)
+        c.line(x, cy + 0.3 * r * s * math.sqrt(1 - f * f), x, cy - 0.25 * r * s - h * 0.98, 1.6 * k, (0.55, 0.42, 0.28, 0.9))
+    for i in range(30):
+        a0, a1 = math.pi + math.pi * i / 30, math.pi + math.pi * (i + 1) / 30
+        c.line(cx + math.cos(a0) * r * 0.95 * s, cy - 0.25 * r * s + math.sin(a0) * r * 0.85 * s,
+               cx + math.cos(a1) * r * 0.95 * s, cy - 0.25 * r * s + math.sin(a1) * r * 0.85 * s, 2 * k, OUT)
+    c.ellipse(cx - 0.45 * r * s, cy - 0.7 * r * s, 0.18 * r * s, 0.32 * r * s, (1, 1, 1, 0.45), 0.5)
+
+
+def genetic_lab(c, cx, cy, s):
+    k = s / 64
+
+    def inner(c, cx, cy, s):
+        for x in (-0.6, 0.6):
+            leaves(c, cx + x * s, cy + 0.35 * s, 1.0 * k, "#4caf50", 3, 0.6, 22)
+        helix(c, cx, cy - 1.15 * s, cx, cy + 0.25 * s, 0.22 * s, 1.5, 2.6 * k, "#2e7d32", "#c2185b")
+    grass(c, cx, cy + 0.3 * s, s, 1.45, 1.1)
+    glass_dome(c, cx, cy, s, 1.3, "#a07a52", inner)
+
+
+def sequencer(c, cx, cy, s):
+    k = s / 64
+
+    def inner(c, cx, cy, s):
+        c.circle(cx, cy - 0.9 * s, 1.1 * s, (0.6, 1, 0.8, 0.18))
+        for x in (-1.3, -0.6, 0.7, 1.4):
+            leaves(c, cx + x * s, cy + 0.6 * s, 1.3 * k, "#43a047", 4, 0.5, 26)
+        helix(c, cx, cy - 2.0 * s, cx, cy + 0.4 * s, 0.4 * s, 2, 4 * k, "#7cc35a", "#f06292")
+        for x, y in [(-0.9, -0.3), (1.0, -0.6), (-0.5, -1.4), (0.7, -1.7)]:
+            c.circle(cx + x * s, cy + y * s, 0.08 * s, (0.8, 1, 0.6, 0.6))
+    c.ellipse(cx, cy + 0.4 * s, 2.45 * s, 1.75 * s, (0.17, 0.11, 0.07, 0.6))
+    c.ellipse(cx, cy + 0.4 * s, 2.4 * s, 1.7 * s, "#5f8f45")
+    for i in range(12):                                                             # petal leaves around the base
+        a = i * 2 * math.pi / 12
+        oellipse(c, cx + math.cos(a) * 2.0 * s, cy + 0.5 * s + math.sin(a) * 1.3 * s, 0.45 * s, 0.22 * s,
+                 "#7bc96f" if i % 2 else "#5fb35a", a, 1.5 * k)
+    glass_dome(c, cx, cy, s, 2.1, "#8d6e4a", inner)
+
+
+def mill(c, cx, cy, s):
+    k = s / 64
+    grass(c, cx, cy + 0.3 * s, s, 1.5, 1.25, "#8fb85a")
+    house(c, cx - 0.95 * s, cx + 0.95 * s, cy + 1.1 * s, 1.3 * s, 0.75 * s, 0.7 * s, "#e8d9b5", "#a0522d")
+    c.rect(cx - 0.22 * s, cy + 0.5 * s, cx + 0.22 * s, cy + 1.1 * s, "#7a5a3a")       # door
+    hx, hy = cx, cy - 0.65 * s                                                      # sails
+    for i in range(4):
+        a = math.pi / 4 + i * math.pi / 2
+        ex, ey = hx + math.cos(a) * 1.55 * s, hy + math.sin(a) * 1.55 * s
+        c.line(hx, hy, ex, ey, 4 * k, OUT)
+        c.line(hx, hy, ex, ey, 2.4 * k, "#8d6e4a")
+        nx, ny = -math.sin(a), math.cos(a)
+        p0 = (hx + math.cos(a) * 0.35 * s, hy + math.sin(a) * 0.35 * s)
+        p1 = (ex, ey)
+        opoly(c, [p0, p1, (p1[0] + nx * 0.32 * s, p1[1] + ny * 0.32 * s), (p0[0] + nx * 0.32 * s, p0[1] + ny * 0.32 * s)],
+              "#f5efe0", 1.3 * k)
+        for f in (0.35, 0.6, 0.85):
+            q = (hx + math.cos(a) * 1.55 * f * s, hy + math.sin(a) * 1.55 * f * s)
+            c.line(q[0], q[1], q[0] + nx * 0.32 * s, q[1] + ny * 0.32 * s, 1.0 * k, "#c8b48a")
+    oellipse(c, hx, hy, 0.15 * s, 0.15 * s, "#6d4c41", 0, 1.5 * k)
+    oellipse(c, cx + 1.15 * s, cy + 1.0 * s, 0.22 * s, 0.28 * s, "#f1e9d8", 0, 1.3 * k)   # flour sack
+    draw_wheat(c, cx - 1.2 * s, cy + 0.7 * s, 0.6 * k)
+
+
+def kitchen(c, cx, cy, s):
+    k = s / 64
+    grass(c, cx, cy + 0.3 * s, s, 1.5, 1.25, "#8fb85a")
+    house(c, cx - 1.1 * s, cx + 1.1 * s, cy + 1.05 * s, 1.0 * s, 0.85 * s, 0.9 * s, "#efe2c4", "#c98a3e")
+    opoly(c, [(cx + 0.45 * s, cy - 0.9 * s), (cx + 0.75 * s, cy - 0.9 * s), (cx + 0.75 * s, cy - 1.75 * s),
+              (cx + 0.45 * s, cy - 1.75 * s)], "#cfd8c4", 1.5 * k)                  # biocement chimney
+    for i, (x, y, r) in enumerate([(0.62, -1.95, 0.14), (0.72, -2.2, 0.18), (0.6, -2.5, 0.22)]):
+        c.circle(cx + x * s, cy + y * s, r * s, (0.95, 0.95, 0.95, 0.75 - i * 0.15))
+    for x in (-0.6, 0.6):                                                           # warm windows
+        c.rect(cx + x * s - 0.22 * s, cy + 0.3 * s, cx + x * s + 0.22 * s, cy + 0.65 * s, OUT)
+        c.rect(cx + x * s - 0.19 * s, cy + 0.33 * s, cx + x * s + 0.19 * s, cy + 0.62 * s, "#ffd36a")
+        c.line(cx + x * s, cy + 0.33 * s, cx + x * s, cy + 0.62 * s, 1.2 * k, "#8d6e4a")
+    c.rect(cx - 0.18 * s, cy + 0.45 * s, cx + 0.18 * s, cy + 1.05 * s, "#7a5a3a")
+    draw_pumpkin(c, cx + 1.15 * s, cy + 1.0 * s, 0.6 * k)
+    draw_carrot(c, cx - 1.2 * s, cy + 0.85 * s, 0.5 * k)
+
+
+def chicken_coop(c, cx, cy, s):
+    k = s / 64
+    grass(c, cx, cy + 0.2 * s, s, 1.5, 1.3, "#9cc35a")
+    c.ellipse(cx + 0.5 * s, cy + 0.6 * s, 0.9 * s, 0.6 * s, "#c8a46a")              # scratched run
+    for x in (-1.0, -0.2):                                                          # stilts
+        c.line(cx + x * s, cy + 0.2 * s, cx + x * s, cy - 0.2 * s, 4 * k, OUT)
+    house(c, cx - 1.15 * s, cx - 0.05 * s, cy + 0.0 * s, 0.75 * s, 0.5 * s, 0.6 * s, "#c8925a", "#8d5a2b")
+    c.circle(cx - 0.6 * s, cy - 0.45 * s, 0.13 * s, "#3b2a20")                       # entrance
+    c.line(cx - 0.45 * s, cy - 0.05 * s, cx + 0.2 * s, cy + 0.45 * s, 4 * k, OUT)   # ramp
+    c.line(cx - 0.45 * s, cy - 0.05 * s, cx + 0.2 * s, cy + 0.45 * s, 2.5 * k, "#a07a52")
+    fence(c, cx - 0.3 * s, cy - 0.6 * s, cx + 1.35 * s, cy + 1.2 * s, s)
+    for x, y in [(0.45, 0.35), (1.0, 0.75), (0.3, 1.0)]:
+        draw_chicken(c, cx + x * s, cy + y * s, 0.42 * k)
+    draw_egg(c, cx - 0.8 * s, cy + 0.9 * s, 0.3 * k)
+
+
+def barn(c, cx, cy, s):
+    k = s / 64
+    grass(c, cx, cy + 0.3 * s, s, 1.5, 1.25, "#8fb85a")
+    house(c, cx - 1.15 * s, cx + 1.15 * s, cy + 1.0 * s, 1.15 * s, 0.85 * s, 0.75 * s, "#c0473a", "#5d4037")
+    c.rect(cx - 0.5 * s, cy + 0.05 * s, cx + 0.5 * s, cy + 1.0 * s, OUT)             # big door with white X
+    c.rect(cx - 0.45 * s, cy + 0.1 * s, cx + 0.45 * s, cy + 1.0 * s, "#a83a2f")
+    for a, b in [((-0.45, 0.1), (0.45, 1.0)), ((0.45, 0.1), (-0.45, 1.0))]:
+        c.line(cx + a[0] * s, cy + a[1] * s, cx + b[0] * s, cy + b[1] * s, 2.5 * k, "#f5f0e6")
+    c.rect(cx - 0.45 * s, cy + 0.1 * s, cx + 0.45 * s, cy + 0.16 * s, "#f5f0e6")
+    c.rect(cx - 0.17 * s, cy - 0.55 * s, cx + 0.17 * s, cy - 0.25 * s, "#f5f0e6")    # hay loft
+    c.rect(cx - 0.13 * s, cy - 0.51 * s, cx + 0.13 * s, cy - 0.29 * s, "#e3c25a")
+    oellipse(c, cx + 1.2 * s, cy + 1.05 * s, 0.32 * s, 0.22 * s, "#e3c25a", 0, 1.3 * k)  # hay bale
+    draw_cow(c, cx - 1.05 * s, cy + 0.95 * s, 0.5 * k)
+
+
+def sheep_pen(c, cx, cy, s):
+    k = s / 64
+    grass(c, cx, cy + 0.2 * s, s, 1.5, 1.3, "#8cc063")
+    opoly(c, [(cx - 1.2 * s, cy - 0.5 * s), (cx - 1.2 * s, cy - 1.3 * s), (cx + 0.2 * s, cy - 1.3 * s),
+              (cx + 0.2 * s, cy - 0.5 * s)], "#a07a52", 1.5 * k)                     # lean-to shelter
+    opoly(c, [(cx - 1.3 * s, cy - 1.2 * s), (cx + 0.3 * s, cy - 1.2 * s), (cx + 0.3 * s, cy - 1.65 * s),
+              (cx - 1.3 * s, cy - 1.65 * s)], "#7cb342", 1.5 * k)
+    c.rect(cx - 1.1 * s, cy - 1.15 * s, cx + 0.1 * s, cy - 0.55 * s, "#4a3420")
+    fence(c, cx - 1.35 * s, cy - 0.45 * s, cx + 1.35 * s, cy + 1.25 * s, s)
+    for x, y in [(-0.75, 0.2), (0.55, 0.1), (-0.05, 0.85)]:
+        draw_sheep(c, cx + x * s, cy + y * s, 0.55 * k)
+    oellipse(c, cx + 1.0 * s, cy - 0.85 * s, 0.25 * s, 0.17 * s, "#e3c25a", 0, 1.2 * k)
+
+
+def hive(c, cx, cy, s):
+    import random
+    rnd = random.Random(8)
+    k = s / 64
+    opoly(c, [(cx - 1.85 * s, cy - 1.4 * s), (cx + 1.85 * s, cy - 1.4 * s), (cx + 1.85 * s, cy + 1.85 * s),
+              (cx - 1.85 * s, cy + 1.85 * s)], "#6b4f33", 2 * k)                    # wooden deck (front edge)
+    c.rect(cx - 1.8 * s, cy - 1.75 * s, cx + 1.8 * s, cy + 1.6 * s, OUT)
+    c.rect(cx - 1.77 * s, cy - 1.72 * s, cx + 1.77 * s, cy + 1.57 * s, "#a07a52")
+    for i in range(1, 10):
+        y = cy - 1.72 * s + i * 3.29 * s / 10
+        c.line(cx - 1.77 * s, y, cx + 1.77 * s, y, 1.2 * k, "#7a5a3a")
+    for hx, hy in [(-1.35, -1.25), (1.35, -1.25), (-1.35, 1.15), (1.35, 1.15)]:      # honeycomb corners
+        for dx, dy in [(0, 0), (0.17, 0.1), (-0.17, 0.1), (0, 0.2)]:
+            pts = [(cx + (hx + dx) * s + math.cos(a) * 0.11 * s, cy + (hy + dy) * s + math.sin(a) * 0.09 * s)
+                   for a in [i * math.pi / 3 for i in range(6)]]
+            opoly(c, pts, "#f6b93b", 1.0 * k)
+    base_y, top_y = cy + 0.95 * s, cy - 1.75 * s                                    # straw skep (coiled bands)
+    n = 9
+    for i in range(n):
+        f = i / n
+        y = base_y - (base_y - top_y) * f
+        r = 1.35 * math.sqrt(max(0.02, 1 - f ** 1.6)) * s
+        oellipse(c, cx, y, r, 0.33 * s, "#d9a441" if i % 2 else "#c08a2c", 0, 1.5 * k)
+        c.ellipse(cx - r * 0.3, y - 0.08 * s, r * 0.45, 0.1 * s, "#ecc56a")
+    opoly(c, [(cx - 0.32 * s, base_y + 0.1 * s), (cx - 0.32 * s, base_y - 0.3 * s), (cx, base_y - 0.48 * s),
+              (cx + 0.32 * s, base_y - 0.3 * s), (cx + 0.32 * s, base_y + 0.1 * s)], "#3b2a20", 1.5 * k)  # entrance
+    for x, y in [(-1.1, -0.9), (1.2, -0.4), (0.7, 1.3), (-0.8, 1.35), (1.5, 0.6)]:
+        draw_bee(c, cx + x * s, cy + y * s, 0.3 * k)
+    for _ in range(14):
+        c.circle(cx + rnd.uniform(-1.6, 1.6) * s, cy + rnd.uniform(-1.6, 1.4) * s, 0.02 * s, "#fff3b0")
+
+
+def building(ent, icons, name, draw, shadow, w, h, center_y):
+    """Entity sprite w x h px (64 px per tile, building centre at x=w/2, y=center_y), its shadow and a 64px icon."""
+    for path, fn in ((name + ".png", draw), (name + "-shadow.png", shadow)):
+        c = Canvas(w, h, ss=2)
+        fn(c, w / 2, center_y, 64)
+        c.save(os.path.join(ent, path))
+    s = 62 * 64 / max(w, h)                         # whole sprite fits the icon
+    c = Canvas(64, 64)
+    draw(c, 32, 32 + (center_y - h / 2) / 64 * s, s)
+    c.save(os.path.join(icons, name + ".png"))
+
+
 def main():
     mod = sys.argv[1]
     icons = os.path.join(mod, "graphics", "icons")
@@ -735,6 +1250,29 @@ def main():
         c = Canvas(64, 64); fn(c); c.save(os.path.join(icons, name + ".png"))
     mound(os.path.join(ent, "growth-mound.png"))
     big_sprout(os.path.join(ent, "building-sprout.png"))
+    # Buildings: name, draw, shadow, sprite w, h, building centre row (sizes must match prototypes/looks.lua)
+    S3 = (224, 288, 176)
+    for name, draw, shadow, size in [
+        ("algae-farm", algae_farm, algae_farm_shadow, (224, 224, 112)),
+        ("reed-filter", reed_filter, reed_filter_shadow, (256, 320, 200)),
+        ("lotus-reactor", lotus_reactor, lotus_reactor_shadow, (384, 384, 200)),
+        ("digester", digester, blob_shadow(1.3, 1.0), S3),
+        ("fermentation-chamber", fermentation_chamber, blob_shadow(1.2, 0.9, tall=1.2), S3),
+        ("mushroom-farm", mushroom_farm, blob_shadow(1.35, 1.1), S3),
+        ("ant-workshop-1", ant_workshop(1), blob_shadow(1.3, 0.9, tall=1.0), S3),
+        ("ant-workshop-2", ant_workshop(2), blob_shadow(1.35, 0.95, tall=1.3), S3),
+        ("ant-workshop-3", ant_workshop(3), blob_shadow(1.4, 1.0, tall=1.4), S3),
+        ("spider-spinner", spider_spinner, blob_shadow(1.3, 1.1, tall=1.0), S3),
+        ("mill", mill, blob_shadow(1.2, 0.9, tall=1.6), S3),
+        ("kitchen", kitchen, blob_shadow(1.3, 0.9, tall=1.3), S3),
+        ("chicken-coop", chicken_coop, blob_shadow(1.35, 1.1, tall=0.6), S3),
+        ("barn", barn, blob_shadow(1.3, 0.9, tall=1.5), S3),
+        ("sheep-pen", sheep_pen, blob_shadow(1.4, 1.1, tall=0.5), S3),
+        ("genetic-lab", genetic_lab, blob_shadow(1.3, 1.0, tall=1.2), S3),
+        ("sequencer", sequencer, blob_shadow(2.3, 1.7, tall=2.0), (384, 448, 256)),
+        ("hive", hive, blob_shadow(1.9, 1.7, tall=1.5), (288, 352, 208)),
+    ]:
+        building(ent, icons, name, draw, shadow, *size)
     print("graphics written to", mod)
 
 

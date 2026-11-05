@@ -81,6 +81,32 @@ function common.recipe(name, category, time, ingredients, results, extra)
   return proto
 end
 
+--- Own building sprite from tools/make_graphics.py: graphics/entity/<name>.png + <name>-shadow.png,
+--- 64 px per tile, w x h px, building centre at pixel row center_y.
+function common.own_sprite(name, w, h, center_y)
+  local shift = { 0, (h / 2 - center_y) / 64 }
+  return {
+    layers = {
+      { filename = common.G .. "entity/" .. name .. ".png", width = w, height = h, scale = 0.5, shift = shift },
+      { filename = common.G .. "entity/" .. name .. "-shadow.png", width = w, height = h, scale = 0.5, shift = shift,
+        draw_as_shadow = true },
+    },
+  }
+end
+
+--- Own icon (graphics/icons/<name>.png) for the entity and its item; drops vanilla-only graphics extras.
+function common.own_look(e, item, name)
+  e.icon = nil
+  e.icons = { { icon = common.icon(name), icon_size = 64 } }
+  if item then
+    item.icon = nil
+    item.icons = e.icons
+  end
+  e.water_reflection = nil
+  e.integration_patch = nil
+  e.frozen_patch = nil
+end
+
 --- Energy source of a "living" building: it eats (fuel category cozy-food, food slot icon).
 function common.fed_energy()
   return {
